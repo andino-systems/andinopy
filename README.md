@@ -3,11 +3,12 @@
 ## Installation
 
 ### Easy Mode
-This will install:
-
-  - NodeRed 
+This will use an install script to install & configure:
+  - Necessary overlays and software for Andino board
   - Andinopy with all requirements
-  - Supervisor for andinpy autostart
+  - NodeRed with all Andino Nodes
+  - Supervisor for andinopy autostart
+  
 #### Andino-IO
 ```shell
 TODO
@@ -33,25 +34,35 @@ wget https://github.com/andino-systems/Andino/raw/master/Andino-IO/BaseBoard/sc1
 sudo cp sc16is752-spi0-ce1.dtbo /boot/overlays/
 ```
 
-3. Enable Uart and SPI in Boot-Overlay
+3. Append the following to /boot/config.txt
 ```shell
-echo "# SPI on" | sudo tee -a /boot/config.txt
-echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
-echo "# I2C on" | sudo tee -a /boot/config.txt
-echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt
-echo "# RTC" | sudo tee -a /boot/config.txt
-echo "dtoverlay=i2c-rtc,ds3231" | sudo tee -a /boot/config.txt
-echo "# CAN on SPI 0.0" | sudo tee -a /boot/config.txt
-echo "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25" | sudo tee -a /boot/config.txt
-echo "# 1. UART" | sudo tee -a /boot/config.txt
-echo "enable_uart=1" | sudo tee -a /boot/config.txt
-echo "dtoverlay=pi3-disable-bt-overlay" | sudo tee -a /boot/config.txt
-echo "dtoverlay=pi3-miniuart-bt" | sudo tee -a /boot/config.txt
-echo "# 2. SPI-UART on SPI 0.1" | sudo tee -a /boot/config.txt
-echo "dtoverlay=sc16is752-spi0-ce1,int_pin=24,xtal=11059200" | sudo tee -a /boot/config.txt
-echo "# DS1820 Temp sensor" | sudo tee -a /boot/config.txt
-echo "dtoverlay=w1-gpio-pullup,gpiopin=22,extpullup=on" | sudo tee -a /boot/config.txt
-echo "dtoverlay=w1-gpio,gpiopin=22" | sudo tee -a /boot/config.txt
+# -----------------------
+# Andino IO from here
+# -----------------------
+
+# SPI on
+dtparam=spi=on
+
+# I2C on
+dtparam=i2c_arm=on
+
+# RTC
+dtoverlay=i2c-rtc,ds3231
+
+# CAN on SPI 0.0
+dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25
+
+# 1. UART
+enable_uart=1
+dtoverlay=pi3-disable-bt-overlay
+dtoverlay=pi3-miniuart-bt
+
+# 2. SPI-UART on SPI 0.1
+dtoverlay=sc16is752-spi0-ce1,int_pin=24,xtal=11059200
+
+# DS1820 Temp sensor
+dtoverlay=w1-gpio-pullup,gpiopin=22,extpullup=on
+dtoverlay=w1-gpio,gpiopin=22
 ```
 
 4. Disable Console on Serial0

@@ -1,3 +1,4 @@
+# Andino IO setup script by Christian Drotleff @ ClearSystems GmbH, 2022
 #!/bin/bash
 
 printf "#### Andino IO setup script ####\n"
@@ -108,11 +109,8 @@ cd ~ || exit 2
 printf "Installing wheel...\n"
 sudo pip3 install wheel
 printf "Downloading andinopy library...\n"
-mkdir andinopy
-wget 'https://raw.githubusercontent.com/andino-systems/Andino/master/Andino-Common/src/andinopy/andinopy.zip' -O ./andinopy/andinopy.zip
-cd andinopy || exit 2
-unzip andinopy.zip
-rm andinopy.zip
+
+# TODO
 
 ## setup
 printf "Installing andinopy library...\n"
