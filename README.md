@@ -1,5 +1,15 @@
 # Andio.Systems Python Library
 
+## General Information
+Andinopy is desgined to run on the andino device-family.
+
+
+Andinopy will run (with limitations) under windows to test applications.
+
+
+We assume no liability for hardware damage, software damage, data loss or losses in any other form when using andinopy.
+This code is published under Apache 2.0 license, so you are free to reuse any part in your projects.
+
 ## Installation
 
 ### Easy Mode
@@ -33,7 +43,7 @@ wget https://github.com/andino-systems/Andino/raw/master/Andino-IO/BaseBoard/sc1
 sudo cp sc16is752-spi0-ce1.dtbo /boot/overlays/
 ```
 
-3. Enable Uart and SPI in Boot-Overlay
+3. Enable Uart and SPI in Boot-Overlay and modules.d
 ```shell
 echo "# SPI on" | sudo tee -a /boot/config.txt
 echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
@@ -52,6 +62,8 @@ echo "dtoverlay=sc16is752-spi0-ce1,int_pin=24,xtal=11059200" | sudo tee -a /boot
 echo "# DS1820 Temp sensor" | sudo tee -a /boot/config.txt
 echo "dtoverlay=w1-gpio-pullup,gpiopin=22,extpullup=on" | sudo tee -a /boot/config.txt
 echo "dtoverlay=w1-gpio,gpiopin=22" | sudo tee -a /boot/config.txt
+
+echo "i2c-dev" | sudo tee -a /etc/modules-load.d/modules.conf
 ```
 
 4. Disable Console on Serial0

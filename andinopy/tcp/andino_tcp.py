@@ -8,6 +8,8 @@
 import sys
 from typing import Dict, List
 import traceback
+
+import andinopy
 from andinopy import base_config
 
 import logging
@@ -15,11 +17,12 @@ from andinopy.interfaces.andino_hardware_interface import andino_hardware_interf
 from andinopy.interfaces.andino_temp_interface import andino_temp_interface
 from andinopy.tcp import simpletcp
 
-
 log = logging.getLogger("andinopy")
+
+
 class andino_tcp:
 
-    def __init__(self, hardware: str=None, port: int=None, oled: bool = None, temp: bool = None,
+    def __init__(self, hardware: str = None, port: int = None, oled: bool = None, temp: bool = None,
                  key_rfid: bool = None, display: bool = None, tcp_encoding=None, display_encoding=None):
         """
         create a new instance of the andino_tcp server
@@ -38,7 +41,8 @@ class andino_tcp:
         self.oled_enabled = base_config["andino_tcp"]["oled"] == "True" if oled is None else oled
         self.port = int(base_config["andino_tcp"]["port"]) if port is None else port
         self.hardware = base_config["andino_tcp"]["hardware"] if hardware is None else hardware
-        self.display_encoding = base_config["andino_tcp"]["display_encoding"] if display_encoding is None else display_encoding
+        self.display_encoding = base_config["andino_tcp"][
+            "display_encoding"] if display_encoding is None else display_encoding
         self.tcp_encoding = base_config["andino_tcp"]["tcp_encoding"] if tcp_encoding is None else tcp_encoding
 
         self.tcpserver = simpletcp.tcp_server(port=self.port,
@@ -71,7 +75,7 @@ class andino_tcp:
 
         self.assign: Dict[str, callable([str, List[str], simpletcp.tcp_server.client_handle])] = {
             'RESET': lambda x: self._i_reset("", ""),
-            'PING' : self._i_ping,
+            'PING': self._i_ping,
             'INFO': self._i_handle_andino_hardware_message,
             'HARD': self._i_handle_andino_hardware_message,
             'POLL': self._i_handle_andino_hardware_message,
@@ -88,10 +92,18 @@ class andino_tcp:
             'REL2': self._i_handle_andino_hardware_message,
             'REL3': self._i_handle_andino_hardware_message,
             'REL4': self._i_handle_andino_hardware_message,
+            'REL5': self._i_handle_andino_hardware_message,
+            'REL6': self._i_handle_andino_hardware_message,
+            'REL7': self._i_handle_andino_hardware_message,
+            'REL8': self._i_handle_andino_hardware_message,
             'RPU1': self._i_handle_andino_hardware_message,
             'RPU2': self._i_handle_andino_hardware_message,
             'RPU3': self._i_handle_andino_hardware_message,
             'RPU4': self._i_handle_andino_hardware_message,
+            'RPU5': self._i_handle_andino_hardware_message,
+            'RPU6': self._i_handle_andino_hardware_message,
+            'RPU7': self._i_handle_andino_hardware_message,
+            'RPU8': self._i_handle_andino_hardware_message,
             'TBUS': self._i_handle_temp_message,
             'ADDRT': self._i_handle_temp_message,
             'SENDT': self._i_handle_temp_message,
@@ -143,7 +155,7 @@ class andino_tcp:
     def _i_handle_tcp_input(self, tcp_in: str, client_handle: simpletcp.tcp_server.client_handle):
         message = tcp_in.split(" ")
         func = message[0].upper().rstrip()
-        #print(f"IN:{tcp_in}")
+        # print(f"IN:{tcp_in}")
         args = message[1:]
         if func == '':
             self.tcpserver.send_line_to_all('')
@@ -178,7 +190,7 @@ class andino_tcp:
             self.tcpserver.send_line_to_all(f"ERROR CRITICAL SERVICE CLOSED")
             self.stop()
 
-    def _i_ping(self,_, _2, client_handle: simpletcp.tcp_server.client_handle):
+    def _i_ping(self, _, _2, _3):
         self.tcpserver.send_line_to_all("PING")
 
     def _i_handle_sys_message(self, arguments: List[str], client_handle: simpletcp.tcp_server.client_handle):
@@ -188,7 +200,7 @@ class andino_tcp:
         self._message_counter = 0
         self.x1_instance.reset()
 
-    def _i_buzz_message(self, _, arguments: List[str], client_handle: simpletcp.tcp_server.client_handle):
+    def _i_buzz_message(self, _, arguments: List[str], _2):
         try:
             self.key_rfid_instance.buzz_display(int(arguments[0]))
             self.tcpserver.send_line_to_all("BUZZ " + str(arguments[0]))
@@ -196,7 +208,7 @@ class andino_tcp:
             self.tcpserver.send_line_to_all("ERROR in buzz - no int")
 
     def _i_handle_nextion_display_message(self, _, arguments: List[str],
-                                          client_handle: simpletcp.tcp_server.client_handle):
+                                          _2):
         # DISP PAGE <page> -> Display page setzen
         # DISP TXT <obj> -> Text setzen
         # DISP ATTR <obj> <attribute> <value> -> Object Atribut setzen
@@ -218,7 +230,7 @@ class andino_tcp:
             return
         self.tcpserver.send_line_to_all("DISP " + " ".join(arguments))
 
-    def _i_handle_temp_message(self, func, arguments: List[str], client_handle: simpletcp.tcp_server.client_handle):
+    def _i_handle_temp_message(self, func, arguments: List[str], _):
         # SENDT [0| ms > 1000] -> Temperatur Meldezyklus
         # ADDRT [1|2] -> Temepraturmesser Adressen
         # TBUS [1|2] -> Bus anzahl setzen
@@ -230,15 +242,15 @@ class andino_tcp:
             if func == "SENDT":
                 self.tcpserver.send_line_to_all(self.temperature_handle.set_temp_broadcast_timer(int(arguments[0])))
             elif func == "ADDRT":
-                    # TODO.md unterschied ADDRT und TBUS
+                # TODO.md unterschied ADDRT und TBUS
                 self.tcpserver.send_line_to_all(self.temperature_handle.set_bus(int(arguments[0])))
             elif func == "TBUS":
                 self.tcpserver.send_line_to_all(self.temperature_handle.set_bus(int(arguments[0])))
             elif func == "TEMP":
                 self.tcpserver.send_line_to_all(self.temperature_handle.get_temp())
-            #self.tcpserver.send_line_to_all(func + " " + " ".join(arguments))
+            # self.tcpserver.send_line_to_all(func + " " + " ".join(arguments))
 
-    def _i_handle_oled_message(self, func, arguments: List[str], client_handle: simpletcp.tcp_server.client_handle):
+    def _i_handle_oled_message(self, func, arguments: List[str], _):
         # TODO.md send respone to client
         if arguments[0].upper() == "MODE":
             if len(arguments) == 3:
@@ -252,10 +264,10 @@ class andino_tcp:
                 self.oled_instance.set_text([text[0], text[1]])
             else:
                 self.oled_instance.set_text(text[0])
-        self.tcpserver.send_line_to_all(func+" "+" ".join(arguments))
+        self.tcpserver.send_line_to_all(func + " " + " ".join(arguments))
 
     def _i_handle_andino_hardware_message(self, func, arguments: List[str],
-                                          client_handle: simpletcp.tcp_server.client_handle):
+                                          _):
         if func == "INFO":
             self.tcpserver.send_line_to_all(self.x1_instance.info())
             return
@@ -273,7 +285,8 @@ class andino_tcp:
             self.tcpserver.send_line_to_all(self.x1_instance.set_broadcast_on_change(bool(int(arguments[0]))))
         elif func == "CHNP":
             if isinstance(self.x1_instance, andinopy.tcp.io_x1_emulator.x1_emulator):
-                self.tcpserver.send_line_to_all(self.x1_instance.set_change_pattern([int(i) for i in str(arguments[0])]))
+                self.tcpserver.send_line_to_all(
+                    self.x1_instance.set_change_pattern([int(i) for i in str(arguments[0])]))
         elif func == "CNTR":
             # TODO.md CNTR	Send Counter - Send counter+states(1) or only states(0)
             #  (default 1)

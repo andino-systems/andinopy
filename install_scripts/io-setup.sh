@@ -11,7 +11,7 @@ sudo apt-get upgrade -y
 # install software
 printf "[IO Setup] Installing software...\n"
 sleep 1
-sudo apt-get install -y minicom screen elinks git python python-pip python3 python3-pip python-serial
+sudo apt-get install -y minicom screen elinks git python3 python3-pip
 
 ### i2c-tools is installed in RTC section
 
@@ -22,6 +22,8 @@ sudo cp sc16is752-spi0-ce1.dtbo /boot/overlays/
 
 ## edit /boot/config.txt
 printf "Enabling UART in /boot/config.txt...\n"
+
+echo "i2c-dev" | sudo tee -a /etc/modules-load.d/modules.conf
 
 echo "# SPI on" | sudo tee -a /boot/config.txt
 echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
@@ -61,7 +63,7 @@ sudo apt-get remove fake-hwclock -y
 sudo dpkg --purge fake-hwclock 
 sudo rm -f /etc/adjtime.
 sudo cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-sudo ln -s /home/pi/bin/ntp2hwclock.sh /etc/cron.hourly/ntp2hwclock
+# sudo ln -s /home/pi/bin/ntp2hwclock.sh /etc/cron.hourly/ntp2hwclock
 
 
 
@@ -97,8 +99,10 @@ printf "Installing prerequisites...\n"
 sudo apt-get install -y libopenjp2-7 libtiff5 fonts-firacode
 
 printf "Installing font...\n"
+mkdir ~/tmp
 cd ~/tmp || exit 2
-wget 'https://raw.githubusercontent.com/tonsky/FiraCode/master/distr/ttf/FiraCode-Regular.ttf'
+wget https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
+unzip
 mv FiraCode-Regular.ttf FIRACODE.TTF
 sudo mkdir -p /usr/share/fonts/truetype
 sudo cp FIRACODE.TTF /usr/share/fonts/truetype/
@@ -106,7 +110,7 @@ cd ~ || exit 2
 
 ## download and unzip
 printf "Installing wheel...\n"
-sudo pip3 install wheel
+sudo pip3 install wheel pyserial
 printf "Downloading andinopy library...\n"
 mkdir andinopy
 wget 'https://raw.githubusercontent.com/andino-systems/Andino/master/Andino-Common/src/andinopy/andinopy.zip' -O ./andinopy/andinopy.zip

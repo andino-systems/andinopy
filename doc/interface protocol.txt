@@ -5,7 +5,10 @@ SYS -> Systeminformationen
 ## OLED
 # OLED MODE col1 [col2]
 # OLED INFO
-# OLED <{zeile1}{zeile2}...{zeile6}>[<{zeile1}{zeile2}...{zeile6}>] ->Text setzen optional beide columns
+# OLED <{zeile1}{zeile2}...{zeile6}><{zeile1}{zeile2}...{zeile6}> ->Text setzen
+
+#wenn zweite spalte leer trozdem <{}{}> an erste anhaengen
+# bspw OLED <{huhu}{haha}><{}{}>
 
 ## TEMP
 SENDT [0| ms > 1000] -> Temperatur Meldezyklus

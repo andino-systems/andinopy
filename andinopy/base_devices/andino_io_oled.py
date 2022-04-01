@@ -7,6 +7,9 @@
 # by Jakob Groß
 import sys
 from typing import Dict, Tuple, List
+
+from andinopy import base_config, save_base_config
+
 if sys.platform == "linux":
     import busio
     import adafruit_ssd1306
@@ -23,6 +26,7 @@ class andino_io_oled:
         """
         self.WIDTH = 128
         self.HEIGHT = 64
+        self._rot = None
         if sys.platform == "linux":
             self.i2c = busio.I2C(3, 2)
             self.display = adafruit_ssd1306.SSD1306_I2C(self.WIDTH, self.HEIGHT, self.i2c)
@@ -49,6 +53,20 @@ class andino_io_oled:
             "40": ([1, 17, 34, 51], "font14"),  # 4 Line, 14 Chars
             "60": ([3, 13, 23, 33, 43, 53], "font8")  # 6 Lines
         }
+
+    # region send_counter
+    @property
+    def rotate(self) -> bool:
+        if self._rot is None:
+            self._rot = int(base_config["oled"]["rotate"])
+        return self._rot
+
+    @rotate.setter
+    def rotate(self, value: bool):
+        self._rot = value
+        base_config["oled"]["rotate"] = str(value)
+        save_base_config()
+    # endregion
 
     def set_mode(self, col1: str, col2: str = None):
         """
@@ -82,6 +100,7 @@ class andino_io_oled:
             self.display.fill(0)
             self.display.show()
         my_image = Image.new('1', (self.WIDTH, self.HEIGHT))
+
         draw = ImageDraw.Draw(my_image)
         for j in range(len(self.config)):
             if self.config[j] is not None:
@@ -93,6 +112,9 @@ class andino_io_oled:
                     text = text = self.text[j][i]
                     draw.text(xy=(offset, self.padding + row[i]), font=font, text=text, fill=255)
                     # print(my_image.tobytes())
+
+        if self.rotate == 1:
+            my_image = my_image.rotate(180)
         if sys.platform == "linux":
             self.display.image(my_image)
             self.display.show()

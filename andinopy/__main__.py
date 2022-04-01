@@ -1,17 +1,23 @@
 import logging
 import multiprocessing
 import resource
-import sys
 import threading
 import time
 import andinopy
 import gpiozero
+import sys
 from gpiozero.pins.mock import MockFactory
 
-import andinopy
+
 from andinopy.tcp.andino_tcp import andino_tcp
 
-andinopy.initialize_cfg("default.cfg")
+if len(sys.argv) == 1:
+    andinopy.initialize_cfg("default.cfg")
+elif len(sys.argv) == 2:
+    andinopy.initialize_cfg(sys.argv[1])
+else:
+    print("Usage: python3 __main__.py <configfile.cfg")
+    sys.exit(-1)
 
 log = logging.getLogger("andinopy")
 log.setLevel(logging.DEBUG)

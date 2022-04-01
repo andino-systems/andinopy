@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" autoUpload="Always" serverName="pi@192.168.168.30:22" remoteFilesAllowedToDisappearOnAutoupload="false">
+  <component name="PublishConfigData" autoUpload="Always" serverName="pi@192.168.168.42:22 (3)" remoteFilesAllowedToDisappearOnAutoupload="false">
     <serverData>
-      <paths name="andino@192.168.168.45:22">
+      <paths name="pi@192.168.168.42:22">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/pycharm_project_207" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/pycharm_project_843" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
-      <paths name="pi@192.168.168.30:22">
+      <paths name="pi@192.168.168.42:22 (2)">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/pycharm_project_241" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/pycharm_project_837" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="pi@192.168.168.42:22 (3)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/tmp/pycharm_project_862" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>
