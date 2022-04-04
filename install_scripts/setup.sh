@@ -35,8 +35,8 @@ sudo apt-get upgrade -y
 
 # install software
 printf "Installing software...\n"
-sudo apt-get install -y minicom screen elinks git python3 python3-pip
-
+sudo apt-get install -y minicom screen elinks git
+sudo apt-get install -y python3 python3-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev python3-pip libjpeg-dev
 ### i2c-tools is installed in RTC section
 
 # install SPI overlay
@@ -151,7 +151,7 @@ printf "Downloading and installing andinopy library...\n"
 mkdir andinopy_isnt
 cd andinopy_isnt || exit
 wget https://github.com/andino-systems/andinopy/raw/main/dist/andinopy-0.2-py3-none-any.whl
-pip3 install andinopy-0.2-py3-none-any.whl
+sudo pip3 install andinopy-0.2-py3-none-any.whl
 cd ..
 
 # download config file
@@ -170,10 +170,8 @@ if [ "${installSupervisor}" = "1" ] ; then
   mkdir andinopy_cfg
   cd andinopy_cfg || exit
   https://raw.githubusercontent.com/andino-systems/andinopy/main/andinopy/default.cfg
-  cd ..
-
   echo "[program:andinopy]
-command=sudo python3 /usr/local/lib/python3.7/dist-packages/andinopy/__main__.py
+command=sudo python3 /usr/local/lib/python3.9/dist-packages/andinopy/__main__.py ${PWD}/default.cfg
 directory= ${PWD}
 user=root
 autostart=true
@@ -184,7 +182,7 @@ stdout_logfile=${PWD}/andinopy.stdout.txt
 stdout_logfile_maxbytes=200000
 stdout_logfile_backups=1
 priority=900" | sudo tee -a /etc/supervisor/conf.d/andinopy.conf
-
+  cd ..
   printf "change config in andinopy_cfg/default.cfg then reboot"
   exit
 fi;
