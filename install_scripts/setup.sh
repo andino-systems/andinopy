@@ -1,7 +1,7 @@
 #!/bin/bash
 # Andino IO setup script by Christian Drotleff / Jakob Groß @ ClearSystems GmbH, 2022
 
-usage() { printf "Usage: %s -m <IO|XIO|X1> [-n <1|0>] [-s <1|0>] \n - n for NodeRed \n - s for Supervisor" "$0" 1>&2; exit 1; }
+usage() { printf "Usage: sudo %s -m <IO|XIO|X1> [-n <1|0>] [-s <1|0>] \n - n for NodeRed \n - s for Supervisor" "$0" 1>&2; exit 1; }
 
 installNodeRed=0
 installSupervisor=0
@@ -16,6 +16,11 @@ do
 done
 shift $((OPTIND-1))
 if [ -z "${mode}" ]; then usage; fi;
+if [ "$(id -u)" -ne 0 ]; then
+	printf "Script must be run as root.\n"
+	usage
+	exit 1
+fi
 
 printf "#### Andinopy setup script ####\n"
 printf "installing for %s, NodeRed: %s, Supervisor: %s" "$mode" "$installNodeRed" "$installSupervisor"
@@ -82,7 +87,8 @@ fi;
 
 
 printf "Disabling console on /dev/serial0...\n"
-cut -d ' ' -f 3- < /boot/cmdline.txt | sudo tee /boot/cmdline.txt
+cut -d ' ' -f 3- < /boot/cmdline.txt | sudo tee /boot/cmdline.txt1
+mv /boot/cmdline.txt1 /boot/cmdline.txt
 
 
 
@@ -128,33 +134,61 @@ printf "Installing prerequisites...\n"
 sudo apt-get install -y libopenjp2-7 libtiff5 fonts-firacode
 
 printf "Installing font...\n"
-mkdir ~/tmp
-cd ~/tmp || exit
+mkdir firacode_inst
+cd firacode_inst || exit
 wget https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
-unzip
+unzip Fira_Code_v6.2.zip
 mv FiraCode-Regular.ttf FIRACODE.TTF
 sudo mkdir -p /usr/share/fonts/truetype
 sudo cp FIRACODE.TTF /usr/share/fonts/truetype/
-cd ~ || exit
+cd ..
 
 ## download and unzip
 printf "Installing wheel...\n"
 sudo pip3 install wheel pyserial
-printf "Downloading andinopy library...\n"
 
-# TODO
+printf "Downloading and installing andinopy library...\n"
+mkdir andinopy_isnt
+cd andinopy_isnt || exit
+wget https://github.com/andino-systems/andinopy/raw/main/dist/andinopy-0.2-py3-none-any.whl
+pip3 install andinopy-0.2-py3-none-any.whl
+cd ..
 
-## setup
-printf "Installing andinopy library...\n"
-sudo python3 setup.py bdist_wheel
-sudo pip3 install dist/andinopy-0.1-py3-none-any.whl
+# download config file
+
 
 # finish and remove script
-
 if [ "${installSupervisor}" = "1" ] ; then
-  # TODO install supervisor and enable andinopy
-  echo
+  printf "Installing Supervisor..."
+  sudo apt-get install -y supervisor
+  sudo chmod +x /etc/init.d/supervisor
+  sudo systemctl daemon-reload
+  sudo update-rc.d supervisor defaults
+  sudo update-rc.d supervisor enable
+  sudo service supervisor start
+
+  mkdir andinopy_cfg
+  cd andinopy_cfg || exit
+  https://raw.githubusercontent.com/andino-systems/andinopy/main/andinopy/default.cfg
+  cd ..
+
+  echo "[program:andinopy]
+command=sudo python3 /usr/local/lib/python3.7/dist-packages/andinopy/__main__.py
+directory= ${PWD}
+user=root
+autostart=true
+autorestart=true
+startsec=3
+redirect_stderr=true
+stdout_logfile=/mnt/ram/andinopy.stdout.txt
+stdout_logfile_maxbytes=200000
+stdout_logfile_backups=1
+priority=900" | sudo tee -a /etc/supervisor/conf.d/andinopy.conf
+
+  printf "change config in andinopy_cfg/default.cfg then reboot"
+  exit
 fi;
+
 
 printf "Setup complete! Please reboot to finish.\n"
 
