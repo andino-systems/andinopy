@@ -12,3 +12,7 @@ This code is published under Apache 2.0 license, so you are free to reuse any pa
 
 ## Installation
 Please refer to `INSTALL.md` 
+
+## Configuration
+In the `default.cfg` you must change your model.
+If you had andinopy running, wou will need to change the saved file or delete the saved file if you want to reset settings.

@@ -6,21 +6,21 @@ This will use an installation script to install & configure:
   - Andinopy with all requirements
   - NodeRed with all Andino Nodes
   - Supervisor for andinopy autostart
-  
-#### Andino-IO
+
 ```shell
 wget https://raw.githubusercontent.com/andino-systems/andinopy/main/install_scripts/setup.sh
 chmod +x setup.sh
-sudo ./setup.sh -m IO -s 1
+sudo ./setup.sh -m IO -n 1 -s 1
 ```
-#### Andino-XIO
-```shell
-TODO install with or without Nodered
-```
-#### Andino-X1
-```shell
-TODO install with or without Nodered
-```
+Change `IO` to `X1` or `XIO` for other Hardware Versions.
+
+
+Change `-n  0` if you don't want to install NodeRed.
+
+
+Change `-s 0` if you don't want to install Supervisor 
+
+(You will need to set up Andinopy-TCP another way if you still want to use NodeRed).
 
 ### Manual Installation
 Follow the steps according to your Hardware (IO, XIO or X1)
@@ -112,9 +112,8 @@ TODO
 TODO
 ```
 
-10. Or use Andinopys modules for your own projects ie.
+10. Or use Andinopy modules for your own projects i.e.
 
-#### Nextion Display
 ```python
 import andinopy
 import andinopy.base_devices.nextion_display
@@ -126,11 +125,3 @@ display.set_text("myObj", "myTestText") # set myObj txt to "myTestText
 display.set_attr("myObj","pco", "255") # set myObj fontcolor to blue
 ```
 
-#### Andino IO or XIO
-```python
-import andinopy.base_devices.andinoio
-
-# set PINS in default.cfg
-io_device = andinopy.base_devices.andinoio.andinoio()
-io_device.input_pins
-```

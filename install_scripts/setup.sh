@@ -138,9 +138,8 @@ mkdir firacode_inst
 cd firacode_inst || exit
 wget https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
 unzip Fira_Code_v6.2.zip
-mv FiraCode-Regular.ttf FIRACODE.TTF
 sudo mkdir -p /usr/share/fonts/truetype
-sudo cp FIRACODE.TTF /usr/share/fonts/truetype/
+sudo cp ttf/FiraCode-Regular.ttf  /usr/share/fonts/truetype/FIRACODE.TTF
 cd ..
 
 ## download and unzip
@@ -169,7 +168,7 @@ if [ "${installSupervisor}" = "1" ] ; then
 
   mkdir andinopy_cfg
   cd andinopy_cfg || exit
-  https://raw.githubusercontent.com/andino-systems/andinopy/main/andinopy/default.cfg
+  wget https://raw.githubusercontent.com/andino-systems/andinopy/main/andinopy/default.cfg
   echo "[program:andinopy]
 command=sudo python3 /usr/local/lib/python3.9/dist-packages/andinopy/__main__.py ${PWD}/default.cfg
 directory= ${PWD}
