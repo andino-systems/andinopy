@@ -19,7 +19,7 @@ setup(
     url="andino.systems",
     download_url="TODO.md",
     license='Apache-2.0',
-    install_requires=['gpiozero', 'smbus2', 'pyserial', 'adafruit-circuitpython-ssd1306', 'PIL',
+    install_requires=['gpiozero', 'smbus2', 'pyserial', 'adafruit-circuitpython-ssd1306', 'Pillow',
                       'adafruit-blinka', 'setuptools', 'wheel'],
     data_files=[('resources', ['andinopy/resources/FIRACODE.TTF'])],
     classifiers=["Development Status :: 4 - Beta",

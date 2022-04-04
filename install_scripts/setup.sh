@@ -23,10 +23,10 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 printf "#### Andinopy setup script ####\n"
-printf "installing for %s, NodeRed: %s, Supervisor: %s" "$mode" "$installNodeRed" "$installSupervisor"
-printf "starting in 3 Seconds press Ctrl+C to cancel..."
+printf "installing for %s, NodeRed: %s, Supervisor: %s" "$mode" "$installNodeRed" "$installSupervisor\n"
+printf "starting in 3 Seconds press Ctrl+C to cancel...\n"
 sleep 3
-printf "Installation started"
+printf "Installation started\n"
 # update & upgrade
 printf "Updating & upgrading packages...\n"
 
@@ -180,7 +180,7 @@ autostart=true
 autorestart=true
 startsec=3
 redirect_stderr=true
-stdout_logfile=/mnt/ram/andinopy.stdout.txt
+stdout_logfile=${PWD}/andinopy.stdout.txt
 stdout_logfile_maxbytes=200000
 stdout_logfile_backups=1
 priority=900" | sudo tee -a /etc/supervisor/conf.d/andinopy.conf

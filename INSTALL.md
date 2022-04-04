@@ -9,7 +9,9 @@ This will use an installation script to install & configure:
   
 #### Andino-IO
 ```shell
-TODO install with or without Nodered
+wget https://raw.githubusercontent.com/andino-systems/andinopy/main/install_scripts/setup.sh
+chmod +x setup.sh
+sudo ./setup.sh -m IO -s 1
 ```
 #### Andino-XIO
 ```shell
