@@ -94,12 +94,7 @@ sudo apt-get install -y minicom screen elinks git
 sudo apt-get install -y python3 python3-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev python3-pip libjpeg-dev
 ### i2c-tools is installed in RTC section
 
-# install SPI overlay
-if [ "$mode" = "IO" ] || [ "$mode" = "X1" ] ; then
-  println_green "Installing SPI overlay..."
-  wget https://github.com/andino-systems/Andino/raw/master/Andino-IO/BaseBoard/sc16is752-spi0-ce1.dtbo
-  sudo cp sc16is752-spi0-ce1.dtbo /boot/overlays/
-fi;
+
 
 ## edit /boot/config.txt
 println_green "Enabling I2C, UART, SPI and CAN..."
@@ -121,6 +116,13 @@ if [ "$mode" = "X1" ] || [ "$mode" = "IO" ] ; then
   echo "# SPI on" | sudo tee -a /boot/config.txt
   echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
   echo "# SPI-UART on SPI 0.1" | sudo tee -a /boot/config.txt
+fi;
+
+# install SPI overlay
+if [ "$mode" = "IO" ] ; then
+  println_green "Installing SPI overlay..."
+  wget https://github.com/andino-systems/Andino/raw/master/Andino-IO/BaseBoard/sc16is752-spi0-ce1.dtbo
+  sudo cp sc16is752-spi0-ce1.dtbo /boot/overlays/
   echo "dtoverlay=sc16is752-spi0-ce1,int_pin=24,xtal=11059200" | sudo tee -a /boot/config.txt
 fi;
 
@@ -277,7 +279,7 @@ relays_active_high=False,False,False
 # Python will stop
 pin_power_fail=18
 shutdown_duration=10
-shutdown_script=bash -c \"sleep 15; sudo shutdown -h now 'ANDINOPY - SHUTDOWN PIN'\"&
+shutdown_script=bash -c \"sleep 15; sudo shutdown -h now \"&
 
 [io_x1_emulator]
 send_broadcast=True
