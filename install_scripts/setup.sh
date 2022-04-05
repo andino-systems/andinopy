@@ -1,53 +1,101 @@
 #!/bin/bash
 # Andino IO setup script by Christian Drotleff / Jakob Groß @ ClearSystems GmbH, 2022
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
 
-usage() { printf "Usage: sudo %s -m <IO|XIO|X1> [-n <1|0>] [-s <1|0>] \n - n for NodeRed \n - s for Supervisor" "$0" 1>&2; exit 1; }
+println_green (){
+  printf "${GREEN}%s${NC}\n" "${1}"
+}
 
-installNodeRed=0
-installSupervisor=0
-while getopts ":m:n:s:" opt
+println_red (){
+  printf "${RED}%s${NC}\n" "${1}"
+}
+
+println (){
+  printf "%s\n" "${1}"
+}
+
+
+usage() {
+  println_green "${RED}Usage: sudo %s -m <IO|XIO|X1> [-n] [-s] [-t] [-d] [-k] [-o]" "$0";
+  println_green " - n for NodeRed";
+  println_green " - s for Supervisor";
+  println_green "These will only affect ${PWD}/andinopy/andinopy_cfg/default.cfg"
+  println_green "If you install with supervisor, supervisor will use this configuration"
+  println_green " - t for Temp Sensor      (only configures default.cfg in ";
+  println_green " - d for Nextion Display  (only takes effect when supervisor is installed with this script)";
+  println_green " - k for RFID-Keyboard    (only takes effect when supervisor is installed with this script)";
+  println_green " - o for OLED             (only takes effect when supervisor is installed with this script)";
+
+  exit 1; }
+
+
+
+installNodeRed="0"
+installSupervisor="0"
+installTemp="0"
+installDisplay="0"
+installKeyRfid="0"
+installOled="0"
+
+while getopts ":m:nstdko" opt
 do
 		case $opt in
 				m) mode=${OPTARG}; ((mode == "IO" || mode  == "XIO" || mode == "X1")) || usage;;
-        n) installNodeRed=${OPTARG}; ((installNodeRed == "1" || installNodeRed  == "0")) || usage;;
-        s) installSupervisor=${OPTARG}; ((installSupervisor == "1" || installSupervisor  == "0")) || usage;;
+        n) installNodeRed="1" ;;
+        s) installSupervisor="1";;
+        t) installTemp="1";;
+        d) installDisplay="1";;
+        k) installKeyRfid="1";;
+        o) installOled="1";;
 				*) usage;;
 		esac
 done
 shift $((OPTIND-1))
 if [ -z "${mode}" ]; then usage; fi;
+
 if [ "$(id -u)" -ne 0 ]; then
-	printf "Script must be run as root.\n"
+	println_red "Script must be run as root!}"
 	usage
 	exit 1
 fi
 
-printf "#### Andinopy setup script ####\n"
-printf "installing for %s, NodeRed: %s, Supervisor: %s" "$mode" "$installNodeRed" "$installSupervisor\n"
-printf "starting in 3 Seconds press Ctrl+C to cancel...\n"
-sleep 3
-printf "Installation started\n"
+println "#### Andinopy setup script ####"
+println "installing NodeRed:             ${installNodeRed}"
+println "installing Supervisor:          ${installSupervisor}"
+println "installing Temperature Sensor:  ${installTemp}"
+println "installing Nextion Display:     ${installDisplay}"
+println "installing Keyboard RFID:       ${installKeyRfid}"
+println "installing OLED:                ${installOled}"
+
+for i in 5 4 3 2 1
+do
+  println_green "----- starting in ${i} Seconds press Ctrl+C to cancel -----"
+  sleep 1
+done
+println "!!! Installation started !!!"
 # update & upgrade
-printf "Updating & upgrading packages...\n"
+println "Updating & upgrading packages..."
 
 sudo apt-get update
 sudo apt-get upgrade -y
 
 # install software
-printf "Installing software...\n"
+println "Installing software..."
 sudo apt-get install -y minicom screen elinks git
 sudo apt-get install -y python3 python3-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev python3-pip libjpeg-dev
 ### i2c-tools is installed in RTC section
 
 # install SPI overlay
 if [ "$mode" = "IO" ] || [ "$mode" = "X1" ] ; then
-  printf "Installing SPI overlay...\n"
+  println "Installing SPI overlay..."
   wget https://github.com/andino-systems/Andino/raw/master/Andino-IO/BaseBoard/sc16is752-spi0-ce1.dtbo
   sudo cp sc16is752-spi0-ce1.dtbo /boot/overlays/
 fi;
 
 ## edit /boot/config.txt
-printf "Enabling I2C, UART, SPI and CAN...\n"
+println "Enabling I2C, UART, SPI and CAN..."
 
 echo "i2c-dev" | sudo tee -a /etc/modules-load.d/modules.conf
 
@@ -73,7 +121,7 @@ if [ "$mode" = "IO" ] ; then
   echo "# CAN on SPI 0.0" | sudo tee -a /boot/config.txt
   echo "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25" | sudo tee -a /boot/config.txt
 
-  printf "Setting up CAN Bus...\n"
+  println "Setting up CAN Bus..."
   sudo ip link set can0 up type can bitrate 125000
   sudo ifconfig can0
 fi;
@@ -86,14 +134,14 @@ if [ "$mode" = "X1" ] ; then
 fi;
 
 
-printf "Disabling console on /dev/serial0...\n"
+println "Disabling console on /dev/serial0..."
 cut -d ' ' -f 3- < /boot/cmdline.txt | sudo tee /boot/cmdline.txt1
 mv /boot/cmdline.txt1 /boot/cmdline.txt
 
 
 
 # configure RTC
-printf "Setting up RTC...\n"
+println "Setting up RTC..."
 sudo apt-get install -y i2c-tools
 sudo apt-get purge -y fake-hwclock
 sudo apt-get remove fake-hwclock -y
@@ -105,19 +153,18 @@ wget 'https://raw.githubusercontent.com/andino-systems/Andino/master/Andino-Comm
 sudo ln -s ~/bin/ntp2hwclock.sh /etc/cron.hourly/ntp2hwclock
 
 if [ "${installNodeRed}" = "1" ] ; then
-  printf "Setting up NodeJS & NodeRed...\n"
+  println "Setting up NodeJS & NodeRed..."
   sleep 1
 
-  printf "Starting installation. PLEASE CONFIRM WITH 'y' IF PROMPTED.\n"
+  println "Starting installation. PLEASE CONFIRM WITH 'y' IF PROMPTED."
   bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered) --confirm-install --confirm-pi
 
-  printf "Enabling Node-Red in systemctl...\n"
+  println "Enabling Node-Red in systemctl..."
   sudo systemctl enable nodered.service
-  printf "...done.\n"
 
-  printf "The Node-Red web UI is currently unsecured!\nFor documentation on how to enable username/password authentication, please refer to https://andino.systems/programming/nodered. \n"
+  println_red "The Node-Red web UI is currently unsecured!\nFor documentation on how to enable username/password authentication, please refer to https://andino.systems/programming/nodered."
 
-  printf "Installing custom NodeRed nodes...\n"
+  println "Installing custom NodeRed nodes..."
 
   npm install node-red-contrib-andinox1
   npm install node-red-contrib-andino-sms
@@ -127,13 +174,13 @@ fi;
 
 
 # install andinopy
-printf "Setting up Andino Python Library...\n"
+println "Setting up Andino Python Library..."
 
 ## prerequisites
-printf "Installing prerequisites...\n"
+println "Installing prerequisites..."
 sudo apt-get install -y libopenjp2-7 libtiff5 fonts-firacode
 
-printf "Installing font...\n"
+println "Installing font..."
 mkdir firacode_inst
 cd firacode_inst || exit
 wget https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
@@ -143,22 +190,31 @@ sudo cp ttf/FiraCode-Regular.ttf  /usr/share/fonts/truetype/FIRACODE.TTF
 cd ..
 
 ## download and unzip
-printf "Installing wheel...\n"
+println "Installing wheel..."
 sudo pip3 install wheel pyserial
 
-printf "Downloading and installing andinopy library...\n"
-mkdir andinopy_isnt
-cd andinopy_isnt || exit
+println "Downloading and installing andinopy library..."
+mkdir andinopy
+cd andinopy || exit
 wget https://github.com/andino-systems/andinopy/raw/main/dist/andinopy-0.2-py3-none-any.whl
 sudo pip3 install andinopy-0.2-py3-none-any.whl
 cd ..
 
 # download config file
 
+println "Editing Configuration File..."
+cd andinopy || exit
+mkdir andinopy_cfg
+mkdir andinopy_log
+cd andinopy_cfg || exit
+## TODO dynamic andinopy config
+wget https://raw.githubusercontent.com/andino-systems/andinopy/main/andinopy/default.cfg
+cd ..\.. | exit
+
 
 # finish and remove script
 if [ "${installSupervisor}" = "1" ] ; then
-  printf "Installing Supervisor..."
+  println "Installing Supervisor..."
   sudo apt-get install -y supervisor
   sudo chmod +x /etc/init.d/supervisor
   sudo systemctl daemon-reload
@@ -166,24 +222,21 @@ if [ "${installSupervisor}" = "1" ] ; then
   sudo update-rc.d supervisor enable
   sudo service supervisor start
 
-  mkdir andinopy_cfg
-  cd andinopy_cfg || exit
-  wget https://raw.githubusercontent.com/andino-systems/andinopy/main/andinopy/default.cfg
+
+
   echo "[program:andinopy]
-command=sudo python3 /usr/local/lib/python3.9/dist-packages/andinopy/__main__.py ${PWD}/default.cfg
+command=sudo python3 /usr/local/lib/python3.9/dist-packages/andinopy/__main__.py ${PWD}/andinopy/andinopy_cfg/default.cfg
 directory= ${PWD}
 user=root
 autostart=true
 autorestart=true
 startsec=3
 redirect_stderr=true
-stdout_logfile=${PWD}/andinopy.stdout.txt
+stdout_logfile=${PWD}/andinopy_log/andinopy.stdout.txt
 stdout_logfile_maxbytes=200000
 stdout_logfile_backups=1
 priority=900" | sudo tee -a /etc/supervisor/conf.d/andinopy.conf
   cd ..
-  printf "change config in andinopy_cfg/default.cfg then reboot"
-  exit
 fi;
 
 
