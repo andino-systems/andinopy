@@ -23,15 +23,13 @@ usage() {
   println_green " - s for Supervisor"
   println_green "These will only affect ${PWD}/andinopy/andinopy_cfg/default.cfg"
   println_green "If you install with supervisor, supervisor will use this configuration"
-  println_green " - t for Temp Sensor      (only configures default.cfg in "
-  println_green " - d for Nextion Display  (only takes effect when supervisor is installed with this script)"
-  println_green " - k for RFID-Keyboard    (only takes effect when supervisor is installed with this script)"
-  println_green " - o for OLED             (only takes effect when supervisor is installed with this script)"
+  println_green " - t for Temp Sensor      Only X1"
+  println_green " - d for Nextion Display  Only IO"
+  println_green " - k for RFID-Keyboard    Only IO"
+  println_green " - o for OLED             Only IO"
 
   exit 1
   }
-
-
 
 installNodeRed="0"
 installSupervisor="0"
@@ -166,7 +164,7 @@ if [ "${installNodeRed}" = "1" ] ; then
   sleep 1
 
   println_green "Starting installation. PLEASE CONFIRM WITH 'y' IF PROMPTED."
-  bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered) --confirm-install --confirm-pi
+  bash <(curl -sL https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered) --confirm-install --confirm-pi --confirm-root
 
   println_green "Enabling Node-Red in systemctl..."
   sudo systemctl enable nodered.service
@@ -175,9 +173,9 @@ if [ "${installNodeRed}" = "1" ] ; then
 
   println_green "Installing custom NodeRed nodes..."
 
-  npm install node-red-contrib-andinox1
-  npm install node-red-contrib-andino-sms
-  npm install node-red-contrib-andinooled
+  sudo npm install node-red-contrib-andinox1
+  sudo npm install node-red-contrib-andino-sms
+  sudo npm install node-red-contrib-andinooled
 
 fi;
 
@@ -316,7 +314,7 @@ autostart=true
 autorestart=true
 startsec=3
 redirect_stderr=true
-stdout_logfile=${PWD}/andinopy_log/andinopy.stdout.txt
+stdout_logfile=${PWD}/andinopy/andinopy_log/andinopy.stdout.txt
 stdout_logfile_maxbytes=200000
 stdout_logfile_backups=1
 priority=900" | sudo tee -a /etc/supervisor/conf.d/andinopy.conf
