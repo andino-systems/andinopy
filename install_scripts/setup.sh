@@ -298,7 +298,7 @@ rotate=0" | sudo tee -a generated.cfg
 if [ "${mode}" = "X1" ] ; then
   echo  "[andino_x1]
   shutdown_input_index=2" | sudo tee -a generated.cfg
-
+fi
 cd ../.. || exit
 
 
