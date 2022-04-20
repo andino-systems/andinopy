@@ -178,13 +178,13 @@ class andinoio:
     @property
     def shutdown_after_seconds(self) -> float:
         if self._shutdown_after_seconds is None:
-            self._shutdown_after_seconds = float(base_config["andino_io"]["shutdown_duration"])
+            self._shutdown_after_seconds = float(base_config["andino_tcp"]["shutdown_duration"])
         return self._shutdown_after_seconds
 
     @shutdown_after_seconds.setter
     def shutdown_after_seconds(self, value: float):
         self._shutdown_after_seconds = value
-        base_config["andino_io"]["shutdown_duration"] = str(value)
+        base_config["andino_tcp"]["shutdown_duration"] = str(value)
         save_base_config()
 
     # endregion
@@ -242,8 +242,8 @@ class andinoio:
         andinopy_logger.debug("AndinoIo reset all counters")
 
     def shutdown(self):
-        subprocess.run(base_config["andino_io"]["shutdown_script"], shell=True, check=True, text=True)
-        raise SystemExit(f"Shutdown-Pin({self.pin_power_fail} held for longer than f{self.shutdown_after_seconds}")
+        andinopy_logger.debug(f"Shutdown-Pin({self.pin_power_fail} held for longer than f{self.shutdown_after_seconds}")
+        subprocess.run(base_config["andino_tcp"]["shutdown_script"], shell=True, check=True, text=True)
 
     def get_input_statuses(self):
         return [int(i.is_pressed) for i in self.Inputs]

@@ -5,12 +5,13 @@
 #   /_/   \_\_| |_|\__,_|_|_| |_|\___/| .__/ \__, |
 #                                     |_|    |___/
 # by Jakob Groß
+import subprocess
 import time
-from threading import Thread
-from typing import List
+from threading import Thread, Timer
 
 import serial
 
+from andinopy import base_config, save_base_config, andinopy_logger
 from andinopy.interfaces.andino_hardware_interface import andino_hardware_interface
 from andinopy.interfaces.andino_temp_interface import andino_temp_interface
 
@@ -30,7 +31,6 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
         :param write_timeout: write timeout
         :param byte_size: size of a byte ie 4,7,8
         :param parity: bit parity
-        :param stop_bits: how many stop bits
         :param read_size: size in byte to read at once (max)
         :param encoding: ie ascii or utf-8
         """
@@ -42,6 +42,10 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
                                           timeout=timeout)
         self.received = []
         self.timeout = 1  # 1second
+        self._shutdown_index = None
+        self._shutdown_after_seconds = None
+        self._shutdown_start = False
+        self._do_shutdown = False
 
         def receive_thread_code(serial_port: serial.Serial, x1instance: 'andino_x1', ):
             buffer = ""
@@ -58,6 +62,34 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
                     index = buffer.find("\n")
 
         self._receive_thread = Thread(target=receive_thread_code, args=[self._serial_port, self])
+
+    @property
+    def shutdown_index(self):
+        if self._shutdown_index is None:
+            self._shutdown_index = int(base_config["andino_x1"]["shutdown_input_index"])
+        return self._shutdown_index
+
+    @shutdown_index.setter
+    def shutdown_index(self, value: int):
+        self._shutdown_index = value
+        base_config["andino_x1"]["shutdown_input_index"] = value
+        save_base_config()
+
+    @property
+    def shutdown_after_seconds(self) -> float:
+        if self._shutdown_after_seconds is None:
+            self._shutdown_after_seconds = float(base_config["andino_tcp"]["shutdown_duration"])
+        return self._shutdown_after_seconds
+
+    @shutdown_after_seconds.setter
+    def shutdown_after_seconds(self, value: float):
+        self._shutdown_after_seconds = value
+        base_config["andino_tcp"]["shutdown_duration"] = str(value)
+        save_base_config()
+
+    def shutdown(self):
+        andinopy_logger.debug(f"Shutdown-Input incoming for longer than f{self.shutdown_after_seconds}")
+        subprocess.run(base_config["andino_tcp"]["shutdown_script"], shell=True, check=True, text=True)
 
     def start(self):
         """
@@ -142,6 +174,24 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
         if recv is None:
             return
         if recv.startswith(":"):
+            stati = recv.split("{")[-1].replace("}", "").split(",")
+            if self.shutdown_index is not None and self._shutdown_index:
+                self._do_shutdown = int(stati[self._shutdown_index]) == 1
+
+                if self._do_shutdown and not self._shutdown_start:
+                    print("shutdown signal")
+
+                    def timed_shutdown(reference: andino_x1):
+                        print("IT WORKED")
+                        if reference._do_shutdown:
+                            reference.shutdown()
+                        else:
+                            reference._shutdown_start = False
+
+                    self._shutdown_start = True
+                    t = Timer(interval=self.shutdown_after_seconds, function=lambda: timed_shutdown(self))
+                    t.start()
+
             self.broadcast(recv)
         else:
 
@@ -157,5 +207,5 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
             time.sleep(check_interval)
         raise BufferError(f"Confirmation for {message} not received")
 
-    def broadcast(self, recv: str):
-        self.broad_cast_function(recv[5:])
+    def broadcast(self, received: str):
+        self.broad_cast_function(received[5:])
