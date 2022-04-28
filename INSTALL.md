@@ -103,9 +103,39 @@ npm install node-red-contrib-andinooled
 ```
 
 8. Install Andinopy (IO, XIO, X1)
+
+Prerequisites:
 ```shell
-TODO
+sudo apt install libopenjp2-7 libtiff5 fonts-firacode
+mkdir firacode_inst
+cd firacode_inst
+wget https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
+unzip Fira_Code_v6.2.zip
+sudo mkdir -p /usr/share/fonts/truetype
+sudo cp ttf/FiraCode-Regular.ttf  /usr/share/fonts/truetype/FIRACODE.TTF
+cd ..
 ```
+Installing wheel:
+```shell
+sudo pip3 install wheel pyserial
+```
+Download and install andinopy:
+```shell
+git clone https://github.com/andino-systems/andinopy.git
+cd andinopy
+sudo pip3 install ./dist/andinopy-0.2-py3-none-any.whl
+```
+Edit the config file at *./andinopy/default.cfg* to set your board paramaters. For basic usage, it should be sufficient to change the values in the andino_tcp section to your hardware configuration. At hardware=... you can change your board configuration. Valid options are *io* for Andino IO / Andino XIO and *x1* for Andino X1.
+
+	hardware=io
+
+The following individual parameters should be set to True if:
+
+	oled - Your board has an oled display
+	temp - You want to connect a [Temperature sensor](/andino-x1/ds18b20-sensors) to your board
+	key_rfid - Your hardware has an RFID-Reader (Andino Terminal)
+	display - Your hardware has a Nextion Display (Andino Terminal)
+
 
 9. Enable Andinopy with Supervisor as Standalone
 ```shell
