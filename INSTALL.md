@@ -14,13 +14,12 @@ sudo ./setup.sh -m IO -n 1 -s 1
 ```
 Change `IO` to `X1` or `XIO` for other Hardware Versions.
 
-
-Change `-n  0` if you don't want to install NodeRed.
-
-
-Change `-s 0` if you don't want to install Supervisor 
-
-(You will need to set up Andinopy-TCP another way if you still want to use NodeRed).
+* Set -n if you want to install NodeRed.
+* Set -s if you want to install Supervisor (recommended! If you choose not to install it, you will need to set up Andinopy-TCP another way if you want to use NodeRed).
+* Set -o if you want to use the OLED display functionality (Andino IO, XIO)
+* Set -t if you want to use a temperature sensor (Andino X1 only!)
+* Set -d if your device has a Nextion Display (Andino Terminal only!)
+* Set -k if your device has a RFID reader/keyboard (Andino Terminal only!)
 
 ### Manual Installation
 Follow the steps according to your Hardware (IO, XIO or X1)
@@ -139,8 +138,37 @@ The following individual parameters should be set to True if:
 
 **9. Enable Andinopy with Supervisor as Standalone**
 ```shell
-TODO
+sudo apt install supervisor
+sudo chmod +x /etc/init.d/supervisor
+sudo systemctl daemon-reload
+sudo update-rc.d supervisor defaults
+sudo update-rc.d supervisor enable
+sudo service supervisor start
 ```
+
+Add andinopy entry to configuration file:
+
+```shell
+sudo nano /etc/supervisor/conf.d/andinopy.conf
+```
+Add the following lines:
+
+```shell
+[program:andinopy]
+command=sudo python3 /usr/local/lib/python3.9/dist-packages/andinopy/__main__.py [install_dir]/andinopy/andinopy_cfg/generated.cfg
+directory= [install_dir]
+user=root
+autostart=true
+autorestart=true
+startsec=3
+redirect_stderr=true
+stdout_logfile=[install_dir]/andinopy/andinopy_log/andinopy.stdout.txt
+stdout_logfile_maxbytes=200000
+stdout_logfile_backups=1
+priority=900
+```
+
+Replace [install_dir] (at the options command, directory and stdout_logfile) with the directory that andinopy is installed in
 
 **10. Or use Andinopy modules for your own projects i.e.**
 
@@ -154,4 +182,6 @@ display.start()
 display.set_text("myObj", "myTestText") # set myObj txt to "myTestText
 display.set_attr("myObj","pco", "255") # set myObj fontcolor to blue
 ```
+
+
 
