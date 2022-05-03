@@ -11,8 +11,10 @@ We assume no liability for hardware damage, software damage, data loss or losses
 This code is published under Apache 2.0 license, so you are free to reuse any part in your projects.
 
 ## Installation
-Please refer to `INSTALL.md` 
+You can install Andinopy either by using our install script or manually. Please refer to [INSTALL.md](./INSTALL.md). 
 
 ## Configuration
 In the `default.cfg` you must change your model.
 If you had andinopy running, wou will need to change the saved file or delete the saved file if you want to reset settings.
+
+**For more detailed documentation on installation and usage of andinopy, please refer to our [guide on andino.systems](https://andino.systems/programming/andinopy/setup).**
