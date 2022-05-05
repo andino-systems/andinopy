@@ -270,17 +270,17 @@ fi
 #Andinopy configuration file
 if [ "${mode}" = "XIO" ] ; then
   echo "[andino_io]
-  # inputs
-  input_pins=6, 13, 19, 26, 21, 20
-  relay_pins=24, 25, 8, 7, 12, 16" | sudo tee -a generated.cfg
+# inputs
+input_pins=6, 13, 19, 26, 21, 20
+relay_pins=24, 25, 8, 7, 12, 16" | sudo tee -a generated.cfg
 else
   echo "[andino_io]
-  # inputs
-  input_pins=13, 19, 16, 26, 20, 21
-  relay_pins=5, 6, 12" | sudo tee -a generated.cfg
+# inputs
+input_pins=13, 19, 16, 26, 20, 21
+relay_pins=5, 6, 12" | sudo tee -a generated.cfg
 fi
 
-"input_pull_up=False,False,False,False,False,False
+echo "input_pull_up=False,False,False,False,False,False
 inputs_polling_time=0.005, 0.005, 0.005, 0.005, 0.005, 0.005
 # changes to debounce time currently have no effect
 inputs_debounce_time=0.005, 0.005, 0.005, 0.005, 0.005, 0.005
