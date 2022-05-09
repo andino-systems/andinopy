@@ -171,11 +171,16 @@ if [ "${installNodeRed}" = "1" ] ; then
 
   println_red "The Node-Red web UI is currently unsecured!\nFor documentation on how to enable username/password authentication, please refer to:\n https://andino.systems/programming/nodered."
 
-  println_green "Installing custom NodeRed nodes..."
+  println_green "Downloading custom NodeRed nodes..."
 
   sudo npm install node-red-contrib-andinox1
   sudo npm install node-red-contrib-andino-sms
   sudo npm install node-red-contrib-andinooled
+  
+  println_green "Copying NodeRed nodes..."
+  sudo cp -r ./node_modules/node-red-contrib-andinox1 /root/.node-red/node_modules/
+  sudo cp -r ./node_modules/node-red-contrib-andino-sms /root/.node-red/node_modules/
+  sudo cp -r ./node_modules/node-red-contrib-andinooled /root/.node-red/node_modules/
 
 fi;
 
@@ -262,12 +267,20 @@ else
   echo "display=False"| sudo tee -a generated.cfg
 fi
 
-## TODO pins and RELS for XIO
-echo "[andino_io]
+#Andinopy configuration file
+if [ "${mode}" = "XIO" ] ; then
+  echo "[andino_io]
+# inputs
+input_pins=6, 13, 19, 26, 21, 20
+relay_pins=24, 25, 8, 7, 12, 16" | sudo tee -a generated.cfg
+else
+  echo "[andino_io]
 # inputs
 input_pins=13, 19, 16, 26, 20, 21
-relay_pins=5, 6, 12
-input_pull_up=False,False,False,False,False,False
+relay_pins=5, 6, 12" | sudo tee -a generated.cfg
+fi
+
+echo "input_pull_up=False,False,False,False,False,False
 inputs_polling_time=0.005, 0.005, 0.005, 0.005, 0.005, 0.005
 # changes to debounce time currently have no effect
 inputs_debounce_time=0.005, 0.005, 0.005, 0.005, 0.005, 0.005
@@ -326,7 +339,7 @@ priority=900" | sudo tee -a /etc/supervisor/conf.d/andinopy.conf
 fi;
 
 
-println_green "Setup complete! Please reboot to finish.\n"
+println_green "Setup complete! Please reboot to finish."
 
 
 
