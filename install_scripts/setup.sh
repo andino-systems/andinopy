@@ -97,18 +97,20 @@ sudo apt-get install -y python3 python3-dev build-essential libssl-dev libffi-de
 ## edit /boot/config.txt
 println_green "Enabling I2C, UART, SPI and CAN..."
 
-echo "i2c-dev" | sudo tee -a /etc/modules-load.d/modules.conf
+if ! grep -q "i2c-dev" "/etc/modules-load.d/modules.conf"; then
+    echo "i2c-dev" | sudo tee -a /etc/modules-load.d/modules.conf
+fi
+if ! grep -q "dtparam=i2c_arm=on" "/boot/config.txt"; then
 
-
-echo "# I2C on" | sudo tee -a /boot/config.txt
-echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt
-echo "# RTC" | sudo tee -a /boot/config.txt
-echo "dtoverlay=i2c-rtc,ds3231" | sudo tee -a /boot/config.txt
-
-echo "# UART" | sudo tee -a /boot/config.txt
-echo "enable_uart=1" | sudo tee -a /boot/config.txt
-echo "dtoverlay=pi3-disable-bt-overlay" | sudo tee -a /boot/config.txt
-echo "dtoverlay=pi3-miniuart-bt" | sudo tee -a /boot/config.txt
+  echo "# I2C on" | sudo tee -a /boot/config.txt
+  echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt
+  echo "# RTC" | sudo tee -a /boot/config.txt
+  echo "dtoverlay=i2c-rtc,ds3231" | sudo tee -a /boot/config.txt
+  echo "# UART" | sudo tee -a /boot/config.txt
+  echo "enable_uart=1" | sudo tee -a /boot/config.txt
+  echo "dtoverlay=pi3-disable-bt-overlay" | sudo tee -a /boot/config.txt
+  echo "dtoverlay=pi3-miniuart-bt" | sudo tee -a /boot/config.txt
+fi
 
 if [ "$mode" = "X1" ] || [ "$mode" = "IO" ] ; then
   echo "# SPI on" | sudo tee -a /boot/config.txt
@@ -118,34 +120,39 @@ fi;
 
 # install SPI overlay
 if [ "$mode" = "IO" ] ; then
-  println_green "Installing SPI overlay..."
-  wget https://github.com/andino-systems/Andino/raw/master/Andino-IO/BaseBoard/sc16is752-spi0-ce1.dtbo
-  sudo cp sc16is752-spi0-ce1.dtbo /boot/overlays/
-  echo "dtoverlay=sc16is752-spi0-ce1,int_pin=24,xtal=11059200" | sudo tee -a /boot/config.txt
+  # Check if already installed
+  if ! grep -q "dtoverlay=sc16is752-spi0-ce1,int_pin=24,xtal=11059200" "/boot/config.txt"; then
+    println_green "Installing SPI overlay..."
+    wget https://github.com/andino-systems/Andino/raw/master/Andino-IO/BaseBoard/sc16is752-spi0-ce1.dtbo
+    sudo cp sc16is752-spi0-ce1.dtbo /boot/overlays/
+    echo "dtoverlay=sc16is752-spi0-ce1,int_pin=24,xtal=11059200" | sudo tee -a /boot/config.txt
+  fi
 fi;
 
 if [ "$mode" = "IO" ] ; then
-  echo "# CAN on SPI 0.0" | sudo tee -a /boot/config.txt
-  echo "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25" | sudo tee -a /boot/config.txt
+  if ! grep -q "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25" "/boot/config.txt"; then
+    echo "# CAN on SPI 0.0" | sudo tee -a /boot/config.txt
+    echo "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25" | sudo tee -a /boot/config.txt
 
-  println_green "Setting up CAN Bus..."
-  sudo ip link set can0 up type can bitrate 125000
-  sudo ifconfig can0
+    println_green "Setting up CAN Bus..."
+    sudo ip link set can0 up type can bitrate 125000
+    sudo ifconfig can0
+  fi
 fi;
 
 
 if [ "$mode" = "X1" ] ; then
-  echo "# DS1820 Temp sensor" | sudo tee -a /boot/config.txt
-  echo "dtoverlay=w1-gpio-pullup,gpiopin=22,extpullup=on" | sudo tee -a /boot/config.txt
-  echo "dtoverlay=w1-gpio,gpiopin=22" | sudo tee -a /boot/config.txt
+  if ! grep -q "dtoverlay=w1-gpio-pullup,gpiopin=22,extpullup=on" "/boot/config.txt"; then
+    echo "# DS1820 Temp sensor" | sudo tee -a /boot/config.txt
+    echo "dtoverlay=w1-gpio-pullup,gpiopin=22,extpullup=on" | sudo tee -a /boot/config.txt
+    echo "dtoverlay=w1-gpio,gpiopin=22" | sudo tee -a /boot/config.txt
+  fi
 fi;
 
 
 println_green "Disabling console on /dev/serial0..."
-cut -d ' ' -f 3- < /boot/cmdline.txt | sudo tee /boot/cmdline.txt1
-mv /boot/cmdline.txt1 /boot/cmdline.txt
-
-
+# changed to sed for rerunning the programm
+sudo sed -i 's/console=serial0,115200 console=tty1/ /g' /boot/cmdline.txt
 
 # configure RTC
 println_green "Setting up RTC..."
@@ -209,6 +216,8 @@ println_green "Downloading and installing andinopy library..."
 mkdir andinopy
 cd andinopy || exit
 wget https://github.com/andino-systems/andinopy/raw/main/dist/andinopy-0.2-py3-none-any.whl
+# remove previously installed versions
+sudo pip3 uninstall andinopy
 sudo pip3 install andinopy-0.2-py3-none-any.whl
 cd ..
 
@@ -227,7 +236,9 @@ port=9999
 tcp_encoding=utf-8
 display_encoding=iso-8859-1
 shutdown_script=bash -c \"sleep 5; sudo shutdown -h now 'ANDINOPY - SHUTDOWN PIN'\"&
-shutdown_duration=6"| sudo tee -a generated.cfg
+shutdown_duration=6"| sudo tee generated.cfg
+# here we dont use -a so the file will get rebuilt, when rerunning setup
+
 ## HARDWARE MODE
 if [ "${mode}" = "IO" ] ; then
   echo "hardware=io"| sudo tee -a generated.cfg
