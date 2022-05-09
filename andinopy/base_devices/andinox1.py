@@ -89,6 +89,7 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
 
     def shutdown(self):
         andinopy_logger.debug(f"Shutdown-Input incoming for longer than f{self.shutdown_after_seconds}")
+        print(f"Shutdown-Input incoming for longer than f{self.shutdown_after_seconds}")
         subprocess.run(base_config["andino_tcp"]["shutdown_script"], shell=True, check=True, text=True)
 
     def start(self):
@@ -182,7 +183,7 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
                     print("shutdown signal")
 
                     def timed_shutdown(reference: andino_x1):
-                        print("IT WORKED")
+                        print("shutting down now")
                         if reference._do_shutdown:
                             reference.shutdown()
                         else:
