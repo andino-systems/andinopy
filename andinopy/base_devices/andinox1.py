@@ -147,7 +147,7 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
         return self.send_with_confirm(f"POWR {value}")
 
     def set_send_relays_status(self, value: bool) -> str:
-        return self.send_with_confirm(f"REL? {value}")
+        return self.send_with_confirm(f"REL? {int(value)}")
 
     def set_relay(self, relay_num: int, value: int) -> str:
         return self.send_with_confirm(f"REL{relay_num} {value}")
@@ -175,7 +175,7 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
         if recv is None:
             return
         if recv.startswith(":"):
-            stati = recv.split("{")[-1].replace("}", "").split(",")
+            stati = recv.split("{")[2].replace("}", "").split(",")
             if self.shutdown_index is not None and self._shutdown_index:
                 self._do_shutdown = int(stati[self._shutdown_index]) == 1
 
