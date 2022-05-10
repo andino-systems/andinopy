@@ -8,14 +8,13 @@ import gpiozero
 import sys
 from gpiozero.pins.mock import MockFactory
 
-
 from andinopy.tcp.andino_tcp import andino_tcp
 
 if len(sys.argv) == 1:
     andinopy.initialize_cfg("default.cfg")
 elif len(sys.argv) == 2:
-    #with open(sys.argv[1], encoding="utf8") as fp:
-        # print(fp.read())
+    # with open(sys.argv[1], encoding="utf8") as fp:
+    # print(fp.read())
     andinopy.initialize_cfg(sys.argv[1])
 else:
     print("Usage: python3 __main__.py <configfile.cfg")
@@ -28,8 +27,6 @@ ch.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 log.addHandler(ch)
-
-
 
 if sys.platform.startswith("win"):
     gpiozero.Device.pin_factory = MockFactory()
@@ -44,7 +41,7 @@ try:
     total_user_time = user_time
     system_time = usage.ru_stime
     total_system_time = system_time
-    debug_timer=10
+    debug_timer = 10
     while 1:
         time.sleep(debug_timer)
         if andinopy.andinopy_logger.isEnabledFor(logging.DEBUG):

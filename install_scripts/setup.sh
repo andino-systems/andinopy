@@ -100,7 +100,7 @@ println_green "Enabling I2C, UART, SPI and CAN..."
 if ! grep -q "i2c-dev" "/etc/modules-load.d/modules.conf"; then
     echo "i2c-dev" | sudo tee -a /etc/modules-load.d/modules.conf
 fi
-if ! grep -q "dtparam=i2c_arm=on" "/boot/config.txt"; then
+if ! grep -q "# I2C on" "/boot/config.txt"; then
 
   echo "# I2C on" | sudo tee -a /boot/config.txt
   echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt
@@ -110,13 +110,14 @@ if ! grep -q "dtparam=i2c_arm=on" "/boot/config.txt"; then
   echo "enable_uart=1" | sudo tee -a /boot/config.txt
   echo "dtoverlay=pi3-disable-bt-overlay" | sudo tee -a /boot/config.txt
   echo "dtoverlay=pi3-miniuart-bt" | sudo tee -a /boot/config.txt
+  if [ "$mode" = "X1" ] || [ "$mode" = "IO" ] ; then
+    echo "# SPI on" | sudo tee -a /boot/config.txt
+    echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
+    echo "# SPI-UART on SPI 0.1" | sudo tee -a /boot/config.txt
+  fi;
 fi
 
-if [ "$mode" = "X1" ] || [ "$mode" = "IO" ] ; then
-  echo "# SPI on" | sudo tee -a /boot/config.txt
-  echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
-  echo "# SPI-UART on SPI 0.1" | sudo tee -a /boot/config.txt
-fi;
+
 
 # install SPI overlay
 if [ "$mode" = "IO" ] ; then
