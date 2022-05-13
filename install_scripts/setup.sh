@@ -284,21 +284,26 @@ if [ "${mode}" = "XIO" ] ; then
   echo "[andino_io]
 # inputs
 input_pins= 24, 25, 8, 7, 12, 16
-relay_pins= 6, 13, 19, 26, 21, 20" | sudo tee -a generated.cfg
+
+# outputs
+relay_pins= 6, 13, 19, 26, 21, 20
+relays_start_config=False,False,False,False,False,False
+relays_active_high=False,False,False,False,False,False" | sudo tee -a generated.cfg
 else
   echo "[andino_io]
 # inputs
 input_pins=13, 19, 16, 26, 20, 21
-relay_pins=5, 6, 12" | sudo tee -a generated.cfg
+relay_pins=5, 6, 12
+# outputs
+relays_start_config=False,False,False
+relays_active_high=False,False,False" | sudo tee -a generated.cfg
 fi
 
 echo "input_pull_up=False,False,False,False,False,False
 inputs_polling_time=0.005, 0.005, 0.005, 0.005, 0.005, 0.005
 # changes to debounce time currently have no effect
 inputs_debounce_time=0.005, 0.005, 0.005, 0.005, 0.005, 0.005
-# outputs
-relays_start_config=False,False,False
-relays_active_high=False,False,False
+
 
 # Power-fail pin. shutdown_script will activate when pin_power_fail is active for more than shutdown_duration s.
 # Python will stop
