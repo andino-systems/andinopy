@@ -283,8 +283,8 @@ fi
 if [ "${mode}" = "XIO" ] ; then
   echo "[andino_io]
 # inputs
-input_pins=6, 13, 19, 26, 21, 20
-relay_pins=24, 25, 8, 7, 12, 16" | sudo tee -a generated.cfg
+input_pins= 24, 25, 8, 7, 12, 16
+relay_pins= 6, 13, 19, 26, 21, 20" | sudo tee -a generated.cfg
 else
   echo "[andino_io]
 # inputs
