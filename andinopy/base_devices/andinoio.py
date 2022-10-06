@@ -20,9 +20,6 @@ class andinoio:
     """
 
     # region initialize
-    input_pins: List[int] = [int(i) for i in base_config["andino_io"]["input_pins"].split(",")]
-    relay_pins: List[int] = [int(i) for i in base_config["andino_io"]["relay_pins"].split(",")]
-    pin_power_fail: int = int(base_config["andino_io"]["pin_power_fail"])
 
     def __init__(self, relays_start_config: bool = None,
                  relays_active_high=None,
@@ -40,6 +37,9 @@ class andinoio:
         :param inputs_debounce_time:
         :param on_input_functions:
         """
+        self.input_pins: List[int] = [int(i) for i in base_config["andino_io"]["input_pins"].split(",")]
+        self.relay_pins: List[int] = [int(i) for i in base_config["andino_io"]["relay_pins"].split(",")]
+        self.pin_power_fail: int = int(base_config["andino_io"]["pin_power_fail"])
 
         # Handlers
         self.outRel: List[gpio_relay] = []  # direct access to gpiozero
