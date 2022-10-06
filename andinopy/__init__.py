@@ -32,6 +32,8 @@ def initialize_cfg(config_file_i=None):
     if os.path.isfile(config_file_s[:-4]+"_saved.cfg"):
         base_config.read(config_file_s[:-4]+"_saved.cfg")
     else:
+        if not os.path.isfile(config_file_s):
+            raise Exception(f"config file: {config_file_s} does not exist")
         base_config.read(config_file_s)
     initialized = True
 

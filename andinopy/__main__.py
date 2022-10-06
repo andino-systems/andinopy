@@ -11,7 +11,7 @@ from gpiozero.pins.mock import MockFactory
 from andinopy.tcp.andino_tcp import andino_tcp
 
 if len(sys.argv) == 1:
-    andinopy.initialize_cfg("default.cfg")
+    andinopy.initialize_cfg("x1_config.cfg")
 elif len(sys.argv) == 2:
     # with open(sys.argv[1], encoding="utf8") as fp:
     # print(fp.read())

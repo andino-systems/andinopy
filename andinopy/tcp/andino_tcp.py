@@ -156,6 +156,7 @@ class andino_tcp:
         message = tcp_in.split(" ")
         func = message[0].upper().rstrip()
         # print(f"IN:{tcp_in}")
+        log.debug(f"From {client_handle.address}: {tcp_in}")
         args = message[1:]
         if func == '':
             self.tcpserver.send_line_to_all('')
@@ -268,41 +269,45 @@ class andino_tcp:
 
     def _i_handle_andino_hardware_message(self, func, arguments: List[str],
                                           _):
-        if func == "INFO":
-            self.tcpserver.send_line_to_all(self.x1_instance.info())
-            return
-        elif func == "HARD":
-            self.tcpserver.send_line_to_all(self.x1_instance.hardware(int(arguments[0])))
-        elif func == "POLL":
-            self.tcpserver.send_line_to_all(self.x1_instance.set_polling(int(arguments[0])))
-        elif func == "SKIP":
-            self.tcpserver.send_line_to_all(self.x1_instance.set_skip(int(arguments[0])))
-        elif func == "EDGE":
-            self.tcpserver.send_line_to_all(self.x1_instance.set_edge_detection(bool(int(arguments[0]))))
-        elif func == "SEND":
-            self.tcpserver.send_line_to_all(self.x1_instance.set_send_time(int(arguments[0])))
-        elif func == "CHNG":
-            self.tcpserver.send_line_to_all(self.x1_instance.set_broadcast_on_change(bool(int(arguments[0]))))
-        elif func == "CHNP":
-            if isinstance(self.x1_instance, andinopy.tcp.io_x1_emulator.x1_emulator):
-                self.tcpserver.send_line_to_all(
-                    self.x1_instance.set_change_pattern([int(i) for i in str(arguments[0])]))
-        elif func == "CNTR":
-            # TODO.md CNTR	Send Counter - Send counter+states(1) or only states(0)
-            #  (default 1)
-            self.tcpserver.send_line_to_all(self.x1_instance.get_counters(int(arguments[0])))
-        elif func == "DEBO":
-            self.tcpserver.send_line_to_all(self.x1_instance.set_debounce(int(arguments[0])))
-        elif func == "POWR":
-            self.tcpserver.send_line_to_all(self.x1_instance.set_power(int(arguments[0])))
-        elif func == "REL?":
-            self.tcpserver.send_line_to_all(self.x1_instance.set_send_relays_status(bool(int(arguments[0]))))
-        elif func.startswith("REL"):
-            i = int(func[3:])
-            self.tcpserver.send_line_to_all(self.x1_instance.set_relay(i, int(arguments[0])))
-        elif func.startswith("RPU"):
-            i = func[3]
-            self.tcpserver.send_line_to_all(self.x1_instance.pulse_relay(int(i), int(arguments[0])))
+        try:
+            if func == "INFO":
+                self.tcpserver.send_line_to_all(self.x1_instance.info())
+                return
+            elif func == "HARD":
+                self.tcpserver.send_line_to_all(self.x1_instance.hardware(int(arguments[0])))
+            elif func == "POLL":
+                self.tcpserver.send_line_to_all(self.x1_instance.set_polling(int(arguments[0])))
+            elif func == "SKIP":
+                self.tcpserver.send_line_to_all(self.x1_instance.set_skip(int(arguments[0])))
+            elif func == "EDGE":
+                self.tcpserver.send_line_to_all(self.x1_instance.set_edge_detection(bool(int(arguments[0]))))
+            elif func == "SEND":
+                self.tcpserver.send_line_to_all(self.x1_instance.set_send_time(int(arguments[0])))
+            elif func == "CHNG":
+                self.tcpserver.send_line_to_all(self.x1_instance.set_broadcast_on_change(bool(int(arguments[0]))))
+            elif func == "CHNP":
+                if isinstance(self.x1_instance, andinopy.tcp.io_x1_emulator.x1_emulator):
+                    self.tcpserver.send_line_to_all(
+                        self.x1_instance.set_change_pattern([int(i) for i in str(arguments[0])]))
+            elif func == "CNTR":
+                # TODO.md CNTR	Send Counter - Send counter+states(1) or only states(0)
+                #  (default 1)
+                self.tcpserver.send_line_to_all(self.x1_instance.get_counters(int(arguments[0])))
+            elif func == "DEBO":
+                self.tcpserver.send_line_to_all(self.x1_instance.set_debounce(int(arguments[0])))
+            elif func == "POWR":
+                self.tcpserver.send_line_to_all(self.x1_instance.set_power(int(arguments[0])))
+            elif func == "REL?":
+                self.tcpserver.send_line_to_all(self.x1_instance.set_send_relays_status(bool(int(arguments[0]))))
+            elif func.startswith("REL"):
+                i = int(func[3:])
+                self.tcpserver.send_line_to_all(self.x1_instance.set_relay(i, int(arguments[0])))
+            elif func.startswith("RPU"):
+                i = func[3]
+                self.tcpserver.send_line_to_all(self.x1_instance.pulse_relay(int(i), int(arguments[0])))
+        except ValueError as ex:
+            log.debug(f"VALUE ERROR in Hardware Message: {ex}")
+            self.tcpserver.send_line_to_all("ERROR")
 
     # endregion
 
