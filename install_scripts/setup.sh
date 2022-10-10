@@ -287,7 +287,7 @@ input_pins= 6, 13, 19, 26, 21, 20
 
 # outputs
 relay_pins= 24, 25, 8, 7, 12, 16
-relays_start_config=False,False,False,False,False,False
+relays_start_config=True,True,True,True,True,True
 relays_active_high=False,False,False,False,False,False" | sudo tee -a generated.cfg
 else
   echo "[andino_io]
@@ -295,7 +295,7 @@ else
 input_pins=13, 19, 16, 26, 20, 21
 relay_pins=5, 6, 12
 # outputs
-relays_start_config=False,False,False
+relays_start_config=True,True,True
 relays_active_high=False,False,False" | sudo tee -a generated.cfg
 fi
 
@@ -323,7 +323,7 @@ debounce=3
 
 [oled]
 # if rotate is 1 the image will be rotated by 180 degrees
-rotate=0" | sudo tee -a generated.cfg
+rotate=1" | sudo tee -a generated.cfg
 if [ "${mode}" = "X1" ] ; then
   echo  "[andino_x1]
   shutdown_input_index=2" | sudo tee -a generated.cfg
