@@ -5,6 +5,7 @@
 #   /_/   \_\_| |_|\__,_|_|_| |_|\___/| .__/ \__, |
 #                                     |_|    |___/
 # by Jakob Groß
+import sys
 import time
 
 import smbus2
@@ -72,5 +73,9 @@ class rfid_keyboard_i2c(rfid_keyboard_interface):
         self._i2c.write_block_data(self._slaveAddress, 0, input_string.encode("utf-8"))
 
     def _read_i2c(self):
-        char_received = chr(self._i2c.read_byte(self._slaveAddress))
-        self._on_char_received(char_received)
+        try:
+            char_received = chr(self._i2c.read_byte(self._slaveAddress))
+            self._on_char_received(char_received)
+        except IOError:
+            andinopy_logger.error("IOError while reading I2C - killing server")
+            sys.exit(2)

@@ -101,7 +101,7 @@ class display:
                 except serial.SerialException as serialEx:
                     continue
 
-                andinopy_logger.debug(f"Nextion read: {x}")
+                andinopy_logger.info(f"Nextion read: {x}")
                 read_buffer.append(int.from_bytes(x, "big"))
                 if read_buffer.endswith(b'\xff\xff\xff'):
                     if len(read_buffer) > 3:

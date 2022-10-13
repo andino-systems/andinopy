@@ -138,12 +138,12 @@ class gpio_input:
     #region events
     def _input(self):
         self._counter += 1
-        andinopy.andinopy_logger.debug(f"input: {self.pin} input")
+        andinopy.andinopy_logger.info(f"input: {self.pin} input")
         if self._on_input is not None:
             self._on_input()
 
     def _change(self):
-        andinopy.andinopy_logger.debug(f"input: {self.pin} changed")
+        andinopy.andinopy_logger.info(f"input: {self.pin} changed")
         if self._on_change is not None:
             self._on_change()
     #endregion

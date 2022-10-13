@@ -20,7 +20,7 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
     def get_counters(self, mode: int) -> str:
         raise NotImplementedError()
 
-    def __init__(self, broad_cast_function: callable(str), port: str = "/dev/ttyAMA0", baud: int = 38400, timeout=0.1,
+    def __init__(self, broad_cast_function: callable(str), port: str = "/dev/ttyAMA0", baud: int = 38400, timeout=1,
                  write_timeout: int = None, byte_size: int = serial.EIGHTBITS, parity=serial.PARITY_NONE,
                  read_size: int = 1024, encoding: str = 'ascii'):
         """

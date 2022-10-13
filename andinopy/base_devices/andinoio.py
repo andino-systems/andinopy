@@ -257,7 +257,7 @@ class andinoio:
         :param state: goal state
         :return: None
         """
-        andinopy_logger.debug(f"AndinoIo set relays {relays_nr}:{state}")
+        andinopy_logger.info(f"AndinoIo set relays {relays_nr}:{state}")
         if bool(state):
             self.outRel[relays_nr].on()
         else:

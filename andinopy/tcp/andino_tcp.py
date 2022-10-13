@@ -306,7 +306,7 @@ class andino_tcp:
                 i = func[3]
                 self.tcpserver.send_line_to_all(self.x1_instance.pulse_relay(int(i), int(arguments[0])))
         except ValueError as ex:
-            log.debug(f"VALUE ERROR in Hardware Message: {ex}")
+            log.error(f"VALUE ERROR in Hardware Message: {ex}")
             self.tcpserver.send_line_to_all("ERROR")
 
     # endregion

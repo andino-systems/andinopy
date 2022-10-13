@@ -2,12 +2,11 @@ import andinopy
 
 andinopy.initialize_cfg("../../andinopy/default.cfg")
 
-import andinopy.finite_state_machine.FSM as fsm
 import andinopy.base_devices.andinoio as andinoio
 
+import andinopy.finite_state_machine.FSM as fsm
+
 from threading import Timer
-
-
 
 FSM = fsm.FiniteStateMachine()
 IO = andinoio.andinoio()
@@ -22,9 +21,6 @@ def newTimer():
     t = Timer(10.0, FSM.send_event("downtime", {}))
 
 
-
-
-
 # IO will send Input Changes to FSM
 def send_on_change(input_nr):
     FSM.send_event("andinoio pin change", {input_nr: IO.get_input_statuses()[input_nr]})
@@ -36,7 +32,7 @@ def input_event_handler_active(arguments):
             global input_1
             input_1 += 1
             global t
-            if t is not None:
+            if isinstance(t, Timer):
                 t.cancel()
                 newTimer()
                 t.start()
@@ -51,10 +47,11 @@ def input_event_handler_down(arguments):
         if arguments[0] == 1:
             global input_1
             input_1 += 1
-            t.cancel()
-            newTimer()
-            t.start()
-            return "active"
+            if isinstance(t, Timer):
+                t.cancel()
+                newTimer()
+                t.start()
+                return "active"
     if arguments.keys()[0] == 1:
         if arguments[1] == 1:
             global input_2
@@ -96,7 +93,7 @@ FSM.add_start_state(downtime_state, "down")
 IO.start()
 FSM.run()
 
-
 print("FSM and IO running, press Enter to quit")
 input()
 input()
+
