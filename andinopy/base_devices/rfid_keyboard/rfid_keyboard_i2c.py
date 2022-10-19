@@ -43,13 +43,17 @@ class rfid_keyboard_i2c(rfid_keyboard_interface):
         """
         self._i2c.open(1)
         self._interrupt = Button(self._interruptPin, hold_time=0.01, hold_repeat=True, pull_up=False)
+        # todo : Ping I2C with timeout if no input has been received for at least 5 seconds
+        #  restart the i2c connection if no answer is received after timeout.
+        #  If it cant be restarted kill whole andinopy
+
         try:
-            timer = 0
+            counter = 0
             while self._interrupt.active_time > 0:
                 self._i2c.read_byte(self._slaveAddress)
                 time.sleep(0.01)
-                timer += 1
-                if timer >= 128:
+                counter += 1
+                if counter >= 128:
                     raise Exception("More than 128 Inputs buffered -> Firmware Corrupted")
         except TypeError:
             pass
