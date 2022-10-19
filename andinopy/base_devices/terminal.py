@@ -36,29 +36,29 @@ class terminal:
             self.rfid_keyboard_instance = rfid_keyboard_instance \
                 if rfid_keyboard_instance is not None else rfid_keyboard_serial()
 
-        andinopy_logger.debug("Terminal starting initialization")
+        andinopy_logger.info("Terminal starting initialization")
         self.andinoio_instance = andinoio_instance if andinoio_instance is not None else andinoio.andinoio()
         self.display_instance = display_instance if display_instance is not None else display()
 
-        andinopy_logger.debug("Terminal device initialized")
+        andinopy_logger.info("Terminal device initialized")
 
     def start(self):
         """
         Start the terminal with the custom configuration
         :return: None
         """
-        andinopy_logger.debug("Terminal device started")
+        andinopy_logger.info("Terminal device started")
         self.andinoio_instance.start()
         self.display_instance.start()
         self.rfid_keyboard_instance.start()
-        andinopy_logger.debug("Terminal - everything started")
+        andinopy_logger.info("Terminal - everything started")
 
     def stop(self):
         """
         Stops and resets the terminal
         :return:
         """
-        andinopy_logger.debug("Terminal device stopped")
+        andinopy_logger.info("Terminal device stopped")
         self.andinoio_instance.stop()
         self.display_instance.stop()
         self.rfid_keyboard_instance.stop()

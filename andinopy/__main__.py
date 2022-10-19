@@ -23,7 +23,7 @@ else:
 log = logging.getLogger("andinopy")
 log.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+ch.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 log.addHandler(ch)
@@ -51,7 +51,7 @@ try:
             system_time = usage.ru_stime - total_system_time
             total_system_time = usage.ru_stime
             available_time = debug_timer * cores
-            andinopy.andinopy_logger.debug(f"In {debug_timer}s elapsed times:"
+            andinopy.andinopy_logger.info(f"In {debug_timer}s elapsed times:"
                                            f" User-Time: {user_time:06.4f}s"
                                            f", System-Time: {system_time:06.4f}s"
                                            f", Available-Time: {available_time:06.4f}s (elapsed*cores)"

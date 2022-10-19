@@ -45,5 +45,5 @@ def save_base_config():
         raise RuntimeWarning("Config was not initialized - cannot save config")
     fp = open(config_file_s[:-4]+"_saved.cfg", 'w')
     base_config.write(fp, space_around_delimiters=False)
-    andinopy_logger.debug("config saved")
+    andinopy_logger.info("config saved")
     fp.close()

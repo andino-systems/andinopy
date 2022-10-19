@@ -77,7 +77,7 @@ class display:
         self._debug_level = 3
         self.running = False
         self.requested_value = None
-        andinopy_logger.debug("Nextion device initialized")
+        andinopy_logger.info("Nextion device initialized")
 
     def start(self):
         """
@@ -93,7 +93,7 @@ class display:
 
         def _read_thread(handle: display):
             read_buffer = bytearray()
-            andinopy_logger.debug("Nextion device listener Thread started")
+            andinopy_logger.info("Nextion device listener Thread started")
             # print(handle.port.fd)
             while handle.running:
                 try:
@@ -101,18 +101,18 @@ class display:
                 except serial.SerialException as serialEx:
                     continue
 
-                andinopy_logger.info(f"Nextion read: {x}")
+                andinopy_logger.debug(f"Nextion read: {x}")
                 read_buffer.append(int.from_bytes(x, "big"))
                 if read_buffer.endswith(b'\xff\xff\xff'):
                     if len(read_buffer) > 3:
                         handle.from_nextion(read_buffer[:-3])
                     read_buffer = bytearray()
 
-            andinopy_logger.debug("Nextion device listener Thread stopped")
+            andinopy_logger.info("Nextion device listener Thread stopped")
 
         self._read_thread = threading.Thread(target=_read_thread, args=[self])
         self._read_thread.start()
-        andinopy_logger.debug("Nextion device started")
+        andinopy_logger.info("Nextion device started")
 
     def get_attr(self, attr_name):
         self.send_raw(f"get {attr_name}")
@@ -130,7 +130,7 @@ class display:
         :param page: goal page
         :return None
         """
-        andinopy_logger.debug("Nextion device changed page")
+        andinopy_logger.info("Nextion device changed page")
         self.send_raw(f"page {page}")
 
     def set_text(self, obj: str, text: str):
@@ -177,7 +177,7 @@ class display:
         self.port.write(self._stop_bits)
 
     def stop(self):
-        andinopy_logger.debug("Nextion device stopped")
+        andinopy_logger.info("Nextion device stopped")
         self.running = False
         self._read_thread.join(0.1)
         time.sleep(1)

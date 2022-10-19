@@ -36,7 +36,7 @@ class rfid_keyboard_interface(abc.ABC):
 
     def _on_char_received(self, char_received: str):
         if char_received != ' ' and char_received != '':
-            andinopy_logger.info(f"received char from display: {char_received}")
+            andinopy_logger.debug(f"received char from display: {char_received}")
             if char_received == ':':
                 if self._rfid_mode:
                     self._rfid_mode = False

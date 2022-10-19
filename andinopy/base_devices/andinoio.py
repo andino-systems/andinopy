@@ -55,7 +55,7 @@ class andinoio:
         self._on_change_functions = on_change_functions
         self._relays_start_config = relays_start_config
         self._relays_active_high = relays_active_high
-        andinopy_logger.debug("AndinoIo initialized")
+        andinopy_logger.info("AndinoIo initialized")
 
     # endregion
 
@@ -152,7 +152,7 @@ class andinoio:
     @relays_start_config.setter
     def relays_start_config(self, values: List[bool]):
         self._relays_start_config = values
-        andinopy_logger.debug("Relays start config saved for next start")
+        andinopy_logger.info("Relays start config saved for next start")
         base_config["andino_io"]["relays_start_config"] = ",".join([str(i) for i in values])
         save_base_config()
 
@@ -168,7 +168,7 @@ class andinoio:
     @relays_active_high.setter
     def relays_active_high(self, values: List[bool]):
         self._relays_active_high = values
-        andinopy_logger.debug("Relays active high config saved for next start")
+        andinopy_logger.info("Relays active high config saved for next start")
         base_config["andino_io"]["relays_active_high"] = ",".join([str(i) for i in values])
         save_base_config()
 
@@ -217,7 +217,7 @@ class andinoio:
         self.power_button = gpio_input(hold_time=self.shutdown_after_seconds,
                                        pin=self.pin_power_fail,
                                        on_input=self.shutdown)
-        andinopy_logger.debug("AndinoIo started")
+        andinopy_logger.info("AndinoIo started")
 
     def stop(self):
         self.power_button.stop()
@@ -228,7 +228,7 @@ class andinoio:
         for rel in self.outRel:
             rel.close()
         self.outRel = []
-        andinopy_logger.debug("AndinoIo stopped")
+        andinopy_logger.info("AndinoIo stopped")
 
     # endregion
 
@@ -239,10 +239,10 @@ class andinoio:
     def reset_all_counters(self):
         for i in self.Inputs:
             i.reset()
-        andinopy_logger.debug("AndinoIo reset all counters")
+        andinopy_logger.info("AndinoIo reset all counters")
 
     def shutdown(self):
-        andinopy_logger.debug(f"Shutdown-Pin({self.pin_power_fail} held for longer than f{self.shutdown_after_seconds}")
+        andinopy_logger.info(f"Shutdown-Pin({self.pin_power_fail} held for longer than f{self.shutdown_after_seconds}")
         subprocess.run(base_config["andino_tcp"]["shutdown_script"], shell=True, check=True, text=True)
 
     def get_input_statuses(self):
@@ -257,7 +257,7 @@ class andinoio:
         :param state: goal state
         :return: None
         """
-        andinopy_logger.info(f"AndinoIo set relays {relays_nr}:{state}")
+        andinopy_logger.debug(f"AndinoIo set relays {relays_nr}:{state}")
         if bool(state):
             self.outRel[relays_nr].on()
         else:

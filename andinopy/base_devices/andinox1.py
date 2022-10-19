@@ -88,7 +88,7 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
         save_base_config()
 
     def shutdown(self):
-        andinopy_logger.debug(f"Shutdown-Input incoming for longer than f{self.shutdown_after_seconds}")
+        andinopy_logger.info(f"Shutdown-Input incoming for longer than f{self.shutdown_after_seconds}")
         print(f"Shutdown-Input incoming for longer than f{self.shutdown_after_seconds}")
         subprocess.run(base_config["andino_tcp"]["shutdown_script"], shell=True, check=True, text=True)
 

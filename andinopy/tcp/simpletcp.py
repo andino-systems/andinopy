@@ -52,7 +52,7 @@ class tcp_server:
             self.send_message(message + "\n")
 
         def _receive_thread(self):
-            andinopy_logger.debug(f"{self.address[0]}:{self.address[1]} connected")
+            andinopy_logger.info(f"{self.address[0]}:{self.address[1]} connected")
             print(f"{self.address} connected")
             try:
                 buffer = ""
@@ -83,14 +83,14 @@ class tcp_server:
                 self._running = False
                 self.remove()
             except OSError:
-                andinopy_logger.debug("client closed before reading was finished")
+                andinopy_logger.info("client closed before reading was finished")
                 self.remove()
             except BrokenPipeError:
-                andinopy_logger.debug("client closed before sending was finished")
+                andinopy_logger.info("client closed before sending was finished")
                 self.remove()
 
         def remove(self):
-            andinopy_logger.debug(f"{self.address[0]}:{self.address[1]} disconnected")
+            andinopy_logger.info(f"{self.address[0]}:{self.address[1]} disconnected")
             self._running = False
             try:
                 self._client_socket.shutdown(SHUT_WR)
@@ -128,7 +128,7 @@ class tcp_server:
         self.generate_broadcast = generate_broadcast
         self.broadcast_timer = broadcast_timer
         self.encoding = encoding
-        andinopy_logger.debug("TCP Server instance created")
+        andinopy_logger.info("TCP Server instance created")
 
     def start(self):
         self._running = True
@@ -156,7 +156,7 @@ class tcp_server:
             i.send_line(message)
 
     def _accept_thread(self):
-        andinopy_logger.debug("starting accept thread")
+        andinopy_logger.info("starting accept thread")
 
         if not sys.platform.startswith("win"):
             from socket import SO_REUSEADDR, SOL_SOCKET
@@ -168,18 +168,18 @@ class tcp_server:
                 sock, address = self._socket.accept()
                 self.clients.append(self.client_handle(address, sock, self, self.on_message))
         except OSError:
-            andinopy_logger.debug("Server closed while waiting for connections")
+            andinopy_logger.info("Server closed while waiting for connections")
         finally:
             self._socket.close()
 
     def _broadcast_thread_function(self):
-        andinopy_logger.debug("starting send status thread")
+        andinopy_logger.info("starting send status thread")
         while self._running:
             if self.broadcast_timer > 0:
                 time.sleep(self.broadcast_timer / 1000)
                 if len(self.clients) > 0:
                     message = self.generate_broadcast(self)
-                    andinopy_logger.debug(f"{len(self.clients)} clients connected - broadcast message is {message}")
+                    andinopy_logger.info(f"{len(self.clients)} clients connected - broadcast message is {message}")
                     for client in self.clients:
                         client.send_message(message)
             else:

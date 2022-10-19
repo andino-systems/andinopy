@@ -33,10 +33,12 @@ class x1_emulator(andinopy.interfaces.andino_hardware_interface.andino_hardware_
         self._send_counter = None
 
         # andino
-        input_functions = [lambda x=i: self._on_input_hex(x) for i in range(len(andinoio.input_pins))]
-        change_functions = [lambda x=i: self._on_input_change(x) for i in range(len(andinoio.input_pins))]
-        self.io = andinoio(on_input_functions=input_functions,
-                           on_change_functions=change_functions)
+        self.io = andinoio()
+        input_functions = [lambda x=i: self._on_input_hex(x) for i in range(len(self.io.input_pins))]
+        change_functions = [lambda x=i: self._on_input_change(x) for i in range(len(self.io.input_pins))]
+
+        self.io.on_input_functions = input_functions
+        self.io.on_change_functions = change_functions
 
         # Reinstated on start
 
@@ -91,19 +93,20 @@ class x1_emulator(andinopy.interfaces.andino_hardware_interface.andino_hardware_
 
     # endregion
 
-    #region send_counter
+    # region send_counter
     @property
     def send_counter(self) -> bool:
         if self._send_counter is None:
-            self._send_counter = base_config["io_x1_emulator"]["send_counter"]=="True"
+            self._send_counter = base_config["io_x1_emulator"]["send_counter"] == "True"
         return self._send_counter
 
     @send_counter.setter
-    def send_counter(self,value:bool):
+    def send_counter(self, value: bool):
         self._send_counter = value
         base_config["io_x1_emulator"]["send_counter"] = str(value)
         save_base_config()
-    #endregion
+
+    # endregion
 
     # region send_rel
     @property

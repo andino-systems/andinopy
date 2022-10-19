@@ -28,13 +28,13 @@ class gpio_input:
         self._button: Optional[gpiozero.Button] = None
         self._counter: int = 0
         self._running: bool = False
-        andinopy.andinopy_logger.debug(f"gpio_input created on pin {self.pin}")
+        andinopy.andinopy_logger.info(f"gpio_input created on pin {self.pin}")
 
     # region start_stop
     def start(self):
         self._rebuild_button()
         self._running = True
-        andinopy.andinopy_logger.debug(f"gpio_input started on pin {self.pin}")
+        andinopy.andinopy_logger.info(f"gpio_input started on pin {self.pin}")
 
     def stop(self):
         self._running = False
@@ -67,7 +67,7 @@ class gpio_input:
     @on_input.setter
     def on_input(self, value: callable):
         self._on_input = value
-        andinopy.andinopy_logger.debug(f"pin{self.pin} on-input changed {self._on_input}")
+        andinopy.andinopy_logger.info(f"pin{self.pin} on-input changed {self._on_input}")
     #endregion
 
     #region on_change
@@ -77,7 +77,7 @@ class gpio_input:
     @on_change.setter
     def on_change(self,value: callable):
         self._on_change = value
-        andinopy.andinopy_logger.debug(f"pin{self.pin} on-change changed {self._on_change}")
+        andinopy.andinopy_logger.info(f"pin{self.pin} on-change changed {self._on_change}")
     #endregion
 
     # region pull_up
@@ -138,12 +138,12 @@ class gpio_input:
     #region events
     def _input(self):
         self._counter += 1
-        andinopy.andinopy_logger.info(f"input: {self.pin} input")
+        andinopy.andinopy_logger.debug(f"input: {self.pin} input")
         if self._on_input is not None:
             self._on_input()
 
     def _change(self):
-        andinopy.andinopy_logger.info(f"input: {self.pin} changed")
+        andinopy.andinopy_logger.debug(f"input: {self.pin} changed")
         if self._on_change is not None:
             self._on_change()
     #endregion
@@ -162,4 +162,4 @@ class gpio_input:
         self._button.when_activated = self._change
         self._button.when_deactivated = self._change
         self._button.hold_repeat = False
-        andinopy.andinopy_logger.debug(f"Pin {self.pin} rebuilt")
+        andinopy.andinopy_logger.info(f"Pin {self.pin} rebuilt")
