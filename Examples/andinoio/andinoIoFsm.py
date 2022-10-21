@@ -18,6 +18,8 @@ class BDE:
         self.input_1 = 0
         self.input_2 = 0
 
+        self.time_to_downtime = 10
+
         self.running = False
         self.status_thread = None
 
@@ -61,34 +63,40 @@ class BDE:
         self.IO.stop()
 
     def send_on_change(self, input_nr):
+        # Send an 'input' event to the finite State Machine if an input changes
         self.FSM.send_event("andinoio pin change", {"input": (input_nr, self.IO.get_input_statuses()[input_nr])})
 
     def input_handler_active(self, arguments):
+        # handle for 'input' events in the active state
         # print(f"input handler active: {arguments}")
         input_nr, status = arguments["input"]
         if input_nr == 0 and status == 1:
             self.input_1 += 1
+            # if no input is received within 'time_to_downtime', 'down' event will be sent
             if isinstance(self.timer, Timer):
                 self.timer.cancel()
-            self.timer = Timer(10.0, lambda: self.FSM.send_event("downtime", {}))
+            self.timer = Timer(self.time_to_downtime, lambda: self.FSM.send_event("downtime", {}))
             self.timer.start()
         if input_nr == 1 and status == 1:
             self.input_2 += 1
 
     def input_handler_down(self, arguments):
+        # handle for 'input' events in the down state
         # print(f"input handler down: {arguments}")
         input_nr, status = arguments["input"]
         if input_nr == 0 and status == 1:
             self.input_1 += 1
+            # if no input is received within 'time_to_downtime', 'down' event will be sent
             if isinstance(self.timer, Timer):
                 self.timer.cancel()
-            self.timer = Timer(10.0, lambda: self.FSM.send_event("downtime", {}))
+            self.timer = Timer(self.time_to_downtime, lambda: self.FSM.send_event("downtime", {}))
             self.timer.start()
             return "active"
         if input_nr == 1 and status == 1:
             self.input_2 += 1
 
     def down_event_handler(self, _):
+        # handle for 'down' events send from the downtime timer
         return "down"
 
     def turn_on_green_lamp(self):
