@@ -147,6 +147,18 @@ class tcp_server:
         self._client_accept_thread.join(1)
         self._broadcast_thread.join(1)
 
+    def _build_accept_socket(self):
+        try:
+            if not sys.platform.startswith("win"):
+                from socket import SO_REUSEADDR, SOL_SOCKET
+                self._socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+            self._socket.bind((self.HOST, self.PORT))
+            self._socket.listen()
+        except OSError as osErr:
+            andinopy_logger.info(f"Error while building Socket retrying in 5 seconds: {osErr}")
+            time.sleep(5)
+            self._build_accept_socket()
+
     def send_to_all(self, message: str):
         for i in self.clients:
             i.send_message(message)
@@ -157,20 +169,16 @@ class tcp_server:
 
     def _accept_thread(self):
         andinopy_logger.info("starting accept thread")
+        self._build_accept_socket()
 
-        if not sys.platform.startswith("win"):
-            from socket import SO_REUSEADDR, SOL_SOCKET
-            self._socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-        self._socket.bind((self.HOST, self.PORT))
-        self._socket.listen()
-        try:
-            while self._running:
+        while self._running:
+            try:
                 sock, address = self._socket.accept()
                 self.clients.append(self.client_handle(address, sock, self, self.on_message))
-        except OSError:
-            andinopy_logger.info("Server closed while waiting for connections")
-        finally:
-            self._socket.close()
+            except Exception as oserr:
+                andinopy_logger.info(f"Error in Socket thread: {oserr}\nrebuilding socket")
+                self._socket.close()
+                self._build_accept_socket()
 
     def _broadcast_thread_function(self):
         andinopy_logger.info("starting send status thread")
