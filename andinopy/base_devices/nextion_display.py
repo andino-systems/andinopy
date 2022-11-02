@@ -49,7 +49,7 @@ class display:
     def __init__(self, serial_port: str = "/dev/ttyAMA0", serial_baud: int = 9600, serial_stop_bits: int = 1,
                  serial_data_bits: int = 8, serial_timeout: float = None,
                  on_display_touch: callable([int, int, int]) = None,
-                 on_display_base: callable(bytearray) = None,encoding = "ascii"):
+                 on_display_base: callable(bytearray) = None, encoding="iso-8859-1"):
         """
         https://nextion.tech/instruction-set/#s6
         Initialize the Display
@@ -68,7 +68,7 @@ class display:
         if sys.platform.startswith("win"):
             self.serial_port = "COM4"
         self.serial_baud = serial_baud
-        self.encoding=encoding
+        self.encoding = encoding
         self.serial_stop_bits = serial_stop_bits
         self.serial_data_bits = serial_data_bits
         self.serial_timeout = serial_timeout
@@ -99,8 +99,10 @@ class display:
                 try:
                     x = handle.port.read(1)
                 except serial.SerialException as serialEx:
+                    andinopy_logger.info(f"Serial Exception: {serialEx} - rebuilding Port, retrying in 2 seconds")
+                    handle.rebuild_port()
+                    time.sleep(2)
                     continue
-
                 andinopy_logger.debug(f"Nextion read: {x}")
                 read_buffer.append(int.from_bytes(x, "big"))
                 if read_buffer.endswith(b'\xff\xff\xff'):
@@ -117,6 +119,12 @@ class display:
     def get_attr(self, attr_name):
         self.send_raw(f"get {attr_name}")
         return self.get_request()
+
+    def rebuild_port(self):
+        self.port.close()
+        self.port = serial.Serial(port=self.serial_port, baudrate=self.serial_baud,
+                                  stopbits=self.serial_stop_bits,
+                                  bytesize=self.serial_data_bits, timeout=self.serial_timeout)
 
     def get_request(self):
         while self.requested_value is None and self.running:
@@ -166,13 +174,12 @@ class display:
         :return:
         """
         try:
-            encoded = text.rstrip().encode("iso-8859-1") + self._stop_bits
+            encoded = text.rstrip().encode(self.encoding) + self._stop_bits
             self.port.write(encoded)
         except UnicodeEncodeError as unicodeEncodeError:
             print(f"Text: {text} could no be encoded to: {self.encoding}")
 
-
-    def send_hex(self,text: str):
+    def send_hex(self, text: str):
         self.port.write(bytes.fromhex(text))
         self.port.write(self._stop_bits)
 
