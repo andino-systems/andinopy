@@ -75,6 +75,7 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
         base_config["andino_x1"]["shutdown_input_index"] = value
         save_base_config()
 
+
     @property
     def shutdown_after_seconds(self) -> float:
         if self._shutdown_after_seconds is None:
@@ -202,11 +203,11 @@ class andino_x1(andino_hardware_interface, andino_temp_interface):
         check_interval = 0.01  # check all 10 ms
         self._send_to_x1(message)
         for i in range(int(self.timeout / check_interval)):
-            if len(self.received) != 0:
-                answer = self.received.pop()
-                return answer
+            for recv in self.received:
+                if message == recv:
+                    return self.received.pop()
             time.sleep(check_interval)
-        raise BufferError(f"Confirmation for {message} not received")
+        return "ERROR"
 
     def broadcast(self, received: str):
         self.broad_cast_function(received[5:])
