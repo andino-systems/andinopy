@@ -88,7 +88,7 @@ sudo apt-get upgrade -y
 
 # install software
 println_green "Installing software..."
-sudo apt-get install -y minicom screen elinks git
+sudo apt-get install -y minicom screen elinks git vim
 sudo apt-get install -y python3 python3-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev python3-pip libjpeg-dev
 ### i2c-tools is installed in RTC section
 
