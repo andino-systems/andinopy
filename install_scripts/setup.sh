@@ -179,17 +179,22 @@ if [ "${installNodeRed}" = "1" ] ; then
 
   println_red "The Node-Red web UI is currently unsecured!\nFor documentation on how to enable username/password authentication, please refer to:\n https://andino.systems/programming/nodered."
 
-  println_green "Downloading custom NodeRed nodes..."
+  println_green "Installing custom NodeRed nodes..."
 
   sudo npm install node-red-contrib-andinox1
   sudo npm install node-red-contrib-andino-sms
   sudo npm install node-red-contrib-andinooled
   
-  println_green "Copying NodeRed nodes..."
   sudo cp -r ./node_modules/node-red-contrib-andinox1 /root/.node-red/node_modules/
   sudo cp -r ./node_modules/node-red-contrib-andino-sms /root/.node-red/node_modules/
   sudo cp -r ./node_modules/node-red-contrib-andinooled /root/.node-red/node_modules/
-
+  
+  println_green "Installing sample & configuration flows..."
+  
+  wget "https://raw.githubusercontent.com/andino-systems/Andino/master/Andino-Common/src/NodeRed/Flows/flows.json"
+  sudo cp flows.json /root/.node-red/flows.json
+  sudo rm flows.json
+  
 fi;
 
 
