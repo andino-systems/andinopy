@@ -271,4 +271,7 @@ class andinoio:
         :return: None
         """
         self.outRel[relays_nr].pulse(duration)
+
+    def get_relay_statuses(self):
+        return [int(i.value) for i in self.outRel]
     # endregion
