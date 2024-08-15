@@ -300,8 +300,8 @@ else
 input_pins=13, 19, 16, 26, 20, 21
 relay_pins=5, 6, 12
 # outputs
-relays_start_config=True,True,True
-relays_active_high=False,False,False" | sudo tee -a generated.cfg
+relays_start_config=False,False,False
+relays_active_high=True,True,True" | sudo tee -a generated.cfg
 fi
 
 echo "input_pull_up=False,False,False,False,False,False
