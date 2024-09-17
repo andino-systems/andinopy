@@ -97,7 +97,6 @@ class andino_io_oled:
         Displays the text set in self.text
         """
         if sys.platform == "linux":
-            self.display.fill(0)
             self.display.show()
         my_image = Image.new('1', (self.WIDTH, self.HEIGHT))
 
